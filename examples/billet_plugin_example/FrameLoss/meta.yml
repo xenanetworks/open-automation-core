@@ -1,0 +1,7 @@
+name: "RFC-2544[Frame Loss]"
+version: "1.0"
+core_version: ">=1.0.0" 
+author: 
+  - "ACO"
+entry_object: "FrameLossTest"
+data_model: "FrameLossModel"
