@@ -4,7 +4,7 @@ Xena OpenAutomation (XOA) Core is the framework for managing testing resources a
 
 
 ## Framework Architecture
-![valhalla-core Diagram](./diagrams/xoa-core.jpg)
+![xoa-core Diagram](./diagrams/xoa-core.jpg)
 
 
 ## Description
@@ -17,29 +17,29 @@ The XOA Core is an asynchronous Python library which can be represented by 4 sub
 
 ### 1. Resources Management System
 
-![Resources management System Diagram](./diagrams/Resources-management-System.jpg)
+![Resources Management System Diagram](./diagrams/Resources-management-System.jpg)
 
 The key functionality is represented in managing and monitoring the state of known testing resources.
-Under the hood is uses instance of the **xmp-truck** library as an representation of the resource. 
+Under the hood, it uses the instance of [`xoa_driver`](https://pypi.org/project/xoa-driver/) library as an representation of the resource. 
 
 > Note:
-> [XOA Python API library](https://github.com/xenadevel/xena-open-automation-python-api) (PyPi package name [`xoa_driver`](https://pypi.org/project/xoa-driver/)) is treated as a 3rd party dependency, whose source code is not included in to XOA Core.
+> [XOA Python API library](https://github.com/xenadevel/xena-open-automation-python-api) (PyPi package name [`xoa_driver`](https://pypi.org/project/xoa-driver/)) is treated as a 3rd party dependency, of which the source code is not included in to XOA Core.
 
 #### Use Case Description
 1. Test resources monitoring - a pool of reserved tester credentials
 	- Add - attach new tester information in to inventory.
 	- Remove - remove an tester information from the inventory, disconnect and pop resource from the stack of the resources.
-	- Retrieve list - get a list of all testers from database and extend it with values from serialized connected testers.
+	- Retrieve list - get a list of all testers from the database and extend it with values from serialized connected testers.
 	- Retrieve connection credentials of an connected tester.
-	- Update connection configurations
+	- Update connection configurations.
 
 #### Examples
 Example of data retrieved from UI
 ```python
 {
 	"host": "192.168.1.199", # tester ip
-	"port": 22606, # tester port
-	"password": "xena", # tester logon password
+	"port": 22606, # tester management communication port
+	"password": "xena", # tester login password
 	"ss_host_id": "xxxxxx" # SessionHost identifier
 }
 
@@ -49,8 +49,8 @@ Example of data passed for add new tester
 ```python
 {
 	"host": "192.168.1.199", # tester ip
-	"port": 22606, # tester port
-	"password": "xena", # tester logon password
+	"port": 22606, # tester management communication port
+	"password": "xena", # tester login password
 }
 ```
 
@@ -61,8 +61,8 @@ Example of data after connection established
 	"name":  "Valkyrie Tester",
 	"comment": "L23 live demo",
 	"host": "192.168.1.199", # tester ip
-	"port": 22606, # tester port
-	"password": "xena", # tester logon password
+	"port": 22606, # tester management communication port
+	"password": "xena", # tester login password
 	"modules": [
 		{
 			"name": "Odin-10G-5S-6P-CU",
@@ -115,19 +115,21 @@ Example of data after tester disconnection
 	"name":  "Valkyrie Tester",
 	"comment": "L23 live demo",
 	"host": "192.168.1.199", # tester ip
-	"port": 22606, # tester port
-	"password": "xena", # tester logon password
+	"port": 22606, # tester management communication port
+	"password": "xena", # tester login password
 	"modules": []
 }
 ```
 
 
-### 2. Test Suit Function Factory
-![Test Suit Function Factory Diagram](./diagrams/xoa-core-Test-Suit-Function-Factory.jpg)
+### 2. Test Suite Function Factory
 
-### 3. Test Suit Plugin System
+![Test Suite Function Factory Diagram](./diagrams/xoa-core-Test-Suit-Function-Factory.jpg)
 
-![Test Suit Plugin System Diagram](./diagrams/xoa-core-Test-Suit-Plugin-System.jpg)
+### 3. Test Suite Plugin System
 
-### 4. Test execution System
-![Test execution System Diagram](./diagrams/xoa-core-Test-execution-System.jpg)
+![Test Suite Plugin System Diagram](./diagrams/xoa-core-Test-Suit-Plugin-System.jpg)
+
+### 4. Test Execution System
+
+![Test Execution System Diagram](./diagrams/xoa-core-Test-execution-System.jpg)
