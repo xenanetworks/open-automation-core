@@ -5,7 +5,7 @@ from typing import (
     Generator
 )
 from operator import attrgetter
-from typing_extensions import Self
+
 from pydantic import (
     BaseModel, 
     validator,
@@ -101,7 +101,7 @@ class StatisticsData(BaseModel):
     loss_percent: int = 0
     fcs: int = 0
 
-    def __add__(self, other: "StatisticsData") -> "Self":
+    def __add__(self, other: "StatisticsData") -> "StatisticsData":
         for name, value in self:
             setattr(self, name, value + attrgetter(name)(other))
         return self
