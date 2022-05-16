@@ -31,7 +31,13 @@ class PStateConditionsFacade(typing.Protocol):
 class PluginAbstract(ABC, typing.Generic[DT]):
     """TestSuitePlugin abstraction class, all testsute must be inherited from it."""
     
-    __slots__ = ("state_conditions", "xoa_out", "testers", "port_identities", "cfg")
+    __slots__ = {
+        "state_conditions": """Facade contains methods which can help pause or stop Plugin execution.""", 
+        "xoa_out": """Facade for transmit messages to user.""", 
+        "testers": """Dictionary of <TESTER_ID>: <TESTER_INSTANCE>""", 
+        "port_identities":  """PortIdentities a dictionary of <SLOT_ID>: <PortIdentity>""", 
+        "cfg": """Test-Suite configuration model defined by plugin."""
+    }
     
     def __init__(self, state_conditions: "PStateConditionsFacade", xoa_out: "PPipeFacade", testers: TestersType, params: "TestParameters") -> None:
         self.state_conditions = state_conditions
