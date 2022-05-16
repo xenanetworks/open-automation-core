@@ -17,8 +17,6 @@ The XOA Core is an asynchronous Python library that can be represented by 4 subp
 
 ### 1. Resources Management System
 
-![Resources Management System Diagram](./diagrams/Resources-management-System.jpg)
-
 The key functionality is represented in managing and monitoring the state of known testing resources.
 Under the hood, it uses the instance of [`xoa_driver`](https://pypi.org/project/xoa-driver/) The library as a representation of the resource. 
 
@@ -29,12 +27,12 @@ Under the hood, it uses the instance of [`xoa_driver`](https://pypi.org/project/
 
 
 ### 2. Test Suite Function Factory
-
+// TODO
 
 
 ### 3. Test Suite Plugin System
-
+// TODO
 
 
 ### 4. Test Execution System
-
+// TODO
