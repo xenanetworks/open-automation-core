@@ -1,4 +1,5 @@
 from .core.plugin_abstract import PluginAbstract
+from .core.test_suites.datasets import PortIdentity, TestParameters
 from .core.resources.datasets.external.credentials import Credentials
 from .core.resources.datasets.external.tester import TesterExternalModel
 from .core.resources.datasets.external.module import ModuleExternalModel
@@ -19,6 +20,8 @@ __all__ = (
     "EProductType",
     "PIPE_EXECUTOR",
     "PIPE_RESOURCES",
-    "EExecutionState"
+    "EExecutionState",
+    "PortIdentity",
+    "TestParameters"
 )
 
