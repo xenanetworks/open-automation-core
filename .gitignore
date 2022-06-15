@@ -23,7 +23,6 @@
 .pydevproject
 *.ximg
 *.tar.bz2
-*.txt
 .env
 tasks.py
 
