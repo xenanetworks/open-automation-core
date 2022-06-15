@@ -136,7 +136,6 @@ html_theme_options = {
     "show_toc_level": 2,
     "use_download_button": True,
     "show_navbar_depth": 2,
-    "announcement": "My announcement!",
 }
 
 html_split_index = True
