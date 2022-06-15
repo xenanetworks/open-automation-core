@@ -6,14 +6,14 @@ def main():
 
     setuptools.setup(
         name="xoa-core",
-        description="Xena Open Automation framework for developing and integrating test suites.",
+        description="Xena Open Automation framework for Xena test suite execution, integration, and development.",
         long_description=long_description,
         long_description_content_type="text/markdown",
         author="Artem Constantinov",
         author_email="aco@xenanetworks.com",
         maintainer="Xena Networks",
         maintainer_email="support@xenanetworks.com",
-        url="https://github.com/xenadevel/xena-open-automation-core",
+        url="https://github.com/xenanetworks/open-automation-core",
         packages=setuptools.find_packages(),
         license='Apache 2.0',
         install_requires = ["xoa_driver", "pydantic", "semver", "oyaml", "loguru"],

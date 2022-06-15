@@ -28,7 +28,7 @@ class PluginController:
         )
         self.__init_plugins()
 
-    def avaliable_test_suites(self) -> List[str]:
+    def available_test_suites(self) -> List[str]:
         return list(self.__test_suites.keys())
 
     def suite_info(self, name: str) -> Optional[Dict]:
@@ -53,7 +53,7 @@ class PluginController:
         return datasets.Plugin(plugin_data, debug)
 
     def __read_plugins(self) -> Generator["datasets.PluginData", None, None]:
-        """Read plugins from providet paths."""
+        """Read plugins from provided paths."""
         for path in self.__paths:
             yield from loader.load_plugin(path)
 

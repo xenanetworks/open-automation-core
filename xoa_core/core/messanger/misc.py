@@ -52,10 +52,10 @@ class PipeFacade:
     def __init__(self, transmit: "TransmitFunc") -> None:
         self.__transmit = transmit
     
-    def send_data(self, data: Union[Dict, BaseModel]) -> None:
-        self.__transmit(data, msg_type=EMsgType.DATA)
+    # def send_data(self, data: Union[Dict, BaseModel]) -> None:
+    #     self.__transmit(data, msg_type=EMsgType.DATA)
     
-    def send_statistics(self, data) -> None:
+    def send_statistics(self, data: Union[Dict, BaseModel]) -> None:
         self.__transmit(data, msg_type=EMsgType.STATISTICS)
     
     def send_progress(self, progress: int) -> None:
