@@ -17,6 +17,8 @@ if typing.TYPE_CHECKING:
 T = typing.TypeVar("T", bound="MainController")
 
 class MainController:
+    """MainController - A main class of XOA-Core framework."""
+
     __slots__ = ("__publisher", "__resources", "suites_library", "__execution_manager")
 
     def __init__(self, *, storage_path: typing.Optional[str] = None, mono: bool = False) -> None:
@@ -33,7 +35,7 @@ class MainController:
 
 
     def listen_changes(self, *names: str, _filter: typing.Optional[typing.Set["EMsgType"]] = None):
-        """Subscribe to messages of an execution id with a filter."""
+        """Subscribe to the messages from different subsystems and test-suites."""
         return self.__publisher.changes(*names, _filter=_filter)
 
     def __await__(self):
@@ -51,15 +53,15 @@ class MainController:
         """
         self.suites_library.register_path(path)
 
-    def get_avaliable_test_suites(self) -> typing.List[str]:
-        """Get a list of available test suites.
+    def get_available_test_suites(self) -> typing.List[str]:
+        """Get a list of available test suite names.
 
         :return: a list of available test suites
         :rtype: typing.List[str]
         """
-        return self.suites_library.avaliable_test_suites()
+        return self.suites_library.available_test_suites()
 
-    def get_test_suite_info(self, name: str):
+    def get_test_suite_info(self, name: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
         """Get the info of a test suite.
 
         :param name: name of the test suite
@@ -94,7 +96,7 @@ class MainController:
         await self.__resources.remove_tester(tester_id)
 
     async def connect_tester(self, tester_id: str) -> None:
-        """Connect to a tester.
+        """Establis connection to a disconnected tester.
 
         :param tester_id: tester id
         :type tester_id: str
@@ -110,7 +112,7 @@ class MainController:
         await self.__resources.disconnect(tester_id)
 
     def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any]) -> str:
-        """Start test
+        """Start test suite execution
 
         :param test_suite_name: test suite name
         :type test_suite_name: str
@@ -130,7 +132,7 @@ class MainController:
         return self.__execution_manager.run(executor)
 
     async def running_test_stop(self, execution_id: str) -> None:
-        """Stop a test.
+        """Stop a test suite execution
 
         :param execution_id: test execution id
         :type execution_id: str
@@ -140,7 +142,7 @@ class MainController:
         return await self.__execution_manager.stop(execution_id)
 
     async def running_test_toggle_pause(self, execution_id: str) -> None:
-        """Pause or continue a test.
+        """Pause or continue execution of a test suite.
 
         :param execution_id: test execution id
         :type execution_id: str
