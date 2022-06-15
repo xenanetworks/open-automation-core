@@ -6,7 +6,7 @@ def main():
 
     setuptools.setup(
         name="xoa-core",
-        description="Xena Open Automation framework for developing and integrating XOA test suites.",
+        description="Xena Open Automation framework for Xena test suite execution, integration, and development.",
         long_description=long_description,
         long_description_content_type="text/markdown",
         author="Artem Constantinov",
