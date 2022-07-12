@@ -3,6 +3,7 @@ from typing import Tuple
 from pydantic import (
     BaseModel,
     SecretStr,
+    constr,
 )
 
 from .. import enums
@@ -10,7 +11,7 @@ from .module import ModuleExternalModel
 
 
 class TesterExternalModel(BaseModel):
-    id: str
+    id: constr(regex=r'^[a-fA-F\d]{32}$') # type: ignore
     product: enums.EProductType
     host: str
     port: int

@@ -18,6 +18,7 @@ from .executor_state_conditions import StateConditions, StateConditionsFacade
 class PPlugin(typing.Protocol):
     def create_test_suite(self, state_conditions: "StateConditionsFacade",  xoa_out: "PipeFacade") -> "PluginAbstract": ...
     
+    
 # TODO: Need to improve attributes creation in this class
 class SuiteExecutor:
     __slots__ = ("suite_name",  "state", "__id", "__observer",  "__msg_pipe", "__test_suite", "__task", "state_conditions")

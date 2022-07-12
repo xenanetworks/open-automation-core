@@ -1,12 +1,16 @@
 import asyncio
 from typing import (
     TYPE_CHECKING,
+    Optional,
     Tuple,
     Callable,
     TypeVar,
     Type,
 )
-from pydantic import SecretStr
+from pydantic import (
+    SecretStr,
+    constr,
+)
 from dataclasses import dataclass, field
 if TYPE_CHECKING:
     from xoa_driver import testers
@@ -27,7 +31,7 @@ class TesterModel:
     reserved_by: str = ""
     is_connected: bool = False
     modules: Tuple[ModuleModel, ...] = field(default_factory=tuple)
-    id: str = None # type: ignore
+    id: Optional[constr(regex=r'^[a-fA-F\d]{32}$')] = None # type: ignore
     keep_disconnected: bool = False
     max_name_len: int = 0 # used by UI validation (Tester Name) & config validation
     max_comment_len: int = 0 # used by UI validation (Tester Description) & config validation
