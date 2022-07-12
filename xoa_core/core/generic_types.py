@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from functools import partialmethod
     # from valhalla_core.core.test_suites.datasets import PluginData
 
-from xoa_core.core.messanger.misc import EMsgType, Message, PipeFacade, PipeStateFacade
+from xoa_core.core.messenger.misc import EMsgType, Message, PipeFacade, PipeStateFacade
 
 
 # region Execution Manager

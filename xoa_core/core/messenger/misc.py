@@ -6,6 +6,7 @@ from typing import (
     Union
 )
 from enum import Enum
+import typing
 from pydantic import BaseModel
 
 DISABLED = 1
@@ -51,18 +52,15 @@ class PipeFacade:
     
     def __init__(self, transmit: "TransmitFunc") -> None:
         self.__transmit = transmit
-    
-    # def send_data(self, data: Union[Dict, BaseModel]) -> None:
-    #     self.__transmit(data, msg_type=EMsgType.DATA)
-    
-    def send_statistics(self, data: Union[Dict, BaseModel]) -> None:
+        
+    def send_statistics(self, data: typing.Union[typing.Dict, "BaseModel"]) -> None: 
         self.__transmit(data, msg_type=EMsgType.STATISTICS)
-    
+        
     def send_progress(self, progress: int) -> None:
         self.__transmit(progress, msg_type=EMsgType.PROGRESS)
-    
-    def send_warning(self, worning: Exception) -> None:
-        self.__transmit(str(worning), msg_type=EMsgType.WARNING)
-    
+        
+    def send_warning(self, warning: Exception) -> None:
+        self.__transmit(str(warning), msg_type=EMsgType.WARNING)
+        
     def send_error(self, error: Exception) -> None:
         self.__transmit(str(error), msg_type=EMsgType.ERROR)
