@@ -1,4 +1,4 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-core) [![PyPI](https://img.shields.io/pypi/v/xoa-core)](https://pypi.python.org/pypi/xoa-core) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-core) [![Documentation Status](https://readthedocs.org/projects/xena-openautomation-core/badge/?version=latest)](https://xena-openautomation-core.readthedocs.io/en/latest/?badge=latest)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-core) [![PyPI](https://img.shields.io/pypi/v/xoa-core)](https://pypi.python.org/pypi/xoa-core) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-core) [![Documentation Status](https://readthedocs.org/projects/xena-openautomation-core/badge/?version=stable)](https://xena-openautomation-core.readthedocs.io/en/stable/?badge=stable)
 
 # Xena OpenAutomation Core
 Xena OpenAutomation (XOA) Core is the framework that provides a standardized way for developers and test specialists to execute, develop, and integrate test suites, as well as managing Xena's physical and virtual Traffic Generation and Analysis (TGA) testers.
