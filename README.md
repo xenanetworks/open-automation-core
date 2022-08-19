@@ -11,7 +11,7 @@ XOA Core uses [XOA Python API](https://github.com/xenanetworks/open-automation-p
 
 ## Documentation
 The user documentation is hosted:
-[Xena OpenAutomation Core Documentation](https://docs.xoa-core.xenanetworks.com/)
+[Xena OpenAutomation Core Documentation](https://docs.xenanetworks.com/projects/xoa-core)
 
 ## Installation
 
