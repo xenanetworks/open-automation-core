@@ -12,6 +12,7 @@ Under the hood, it uses the instance of `xoa_driver <https://pypi.org/project/xo
     `XOA Python API <https://github.com/xenanetworks/open-automation-python-api>`_ (PyPi package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) is treated as a 3rd-party dependency, thus its source code is not included in XOA Core.
 
 Available operations for users:
+
 * Add testers
 * Remove testers
 * Connect to testers
