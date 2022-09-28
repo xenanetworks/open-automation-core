@@ -6,7 +6,10 @@ XOA Core is available to install via the `Python Package Index <https://pypi.org
 Prerequisites
 -------------
 
-Before installing XOA Core, please make sure your environment has installed `Python <https://www.python.org/>`_ and ``pip``.
+Before installing XOA Core, please make sure your environment has installed:
+    
+* `Python`_
+* `pip`_
 
 Python
 ^^^^^^^
@@ -18,7 +21,7 @@ XOA Core requires that you `install Python <https://realpython.com/installing-py
     XOA Core requires Python >= 3.8.
 
 ``pip``
-^^^^^^^
+^^^^^^^^
 
 Make sure ``pip`` is installed on your system. ``pip`` is the `package installer for Python <https://packaging.python.org/guides/tool-recommendations/>`_ . You can use it to install packages from the `Python Package Index <https://pypi.org/>`_  and other indexes.
 
@@ -53,16 +56,24 @@ If you don't have ``pip`` installed, you can:
     Read more about installation of ``pip`` in `pip installation <https://pip.pypa.io/en/stable/installation/>`_.
 
 
-Installing From PyPi Using ``pip``
+Installing From PyPI Using ``pip``
 --------------------------------------------
 
 ``pip`` is the recommended installer for XOA Core. The most common usage of ``pip`` is to install from the `Python Package Index <https://pypi.org/>`_ using `Requirement Specifiers <https://pip.pypa.io/en/stable/cli/pip_install/#requirement-specifiers>`_.
+
+.. note::
+    
+    If you install XOA Core using ``pip``, XOA Python API (PyPI package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) will be automatically installed.
+
+
+Install XOA Core to Global Namespace
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. tab:: Windows
     :new-set:
 
     .. code-block:: doscon
-        :caption: Install XOA Core in Windows environment from PyPi.
+        :caption: Install XOA Core in Windows environment from PyPI.
 
         > pip install xoa-core            # latest version
         > pip install xoa-core==1.0.3     # specific version
@@ -71,14 +82,47 @@ Installing From PyPi Using ``pip``
 .. tab:: macOS/Linux
 
     .. code-block:: console
-        :caption: Install XOA Core in macOS/Linux environment from PyPi.
+        :caption: Install XOA Core in macOS/Linux environment from PyPI.
 
         $ pip install xoa-core            # latest version
         $ pip install xoa-core==1.0.3     # specific version
         $ pip install xoa-core>=1.0.3     # minimum version
 
 
-Upgrading From PyPi Using ``pip``
+Install XOA Core in Virtual Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Install XOA Core in a virtual environment, so it does not pollute your global namespace. 
+
+For example, your project folder is called ``/my_xoa_project``.
+
+.. tab:: Windows
+
+    .. code-block:: doscon
+        :caption: Install XOA Core in a virtual environment in Windows from PyPI.
+
+        [my_xoa_project]> python -m venv ./env
+        [my_xoa_project]> source ./env/bin/activate
+
+        (env) [my_xoa_project]> pip install xoa-core 
+
+.. tab:: macOS/Linux
+
+    .. code-block:: console
+        :caption: Install XOA Core in a virtual environment in macOS/Linux from PyPI.
+
+        [my_xoa_project]$ python3 -m venv ./env
+        [my_xoa_project]$ source ./env/bin/activate
+        (env) [my_xoa_project]$ pip install xoa-core
+
+.. seealso::
+
+    * `Virtual Python environment <https://packaging.python.org/en/latest/tutorials/installing-packages/#creating-and-using-virtual-environments>`_
+    * `virtualenv <https://virtualenv.pypa.io/en/latest/#>`_
+    * `venv <https://docs.python.org/3/library/venv.html>`_
+
+
+Upgrading From PyPI Using ``pip``
 --------------------------------------------
 
 To upgrade XOA Core package from PyPI:
@@ -87,27 +131,29 @@ To upgrade XOA Core package from PyPI:
     :new-set:
     
     .. code-block:: doscon
-        :caption: Upgrade XOA Core in Windows environment from PyPi.
+        :caption: Upgrade XOA Core in Windows environment from PyPI.
 
         > pip install xoa-core --upgrade
 
 .. tab:: macOS/Linux
 
     .. code-block:: console
-        :caption: Upgrade XOA Core in macOS/Linux environment from PyPi.
+        :caption: Upgrade XOA Core in macOS/Linux environment from PyPI.
 
         $ pip install xoa-core --upgrade
 
+
 .. note::
     
-    If you install XOA Core using ``pip``, XOA Python API (PyPi package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) will be automatically installed.
+    If you upgrade XOA Core using ``pip``, XOA Python API (PyPI package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) will be automatically upgraded.
+
 
 Installing Manually From Source
 --------------------------------------------
 
 If for some reason you need to install XOA Core manually from source, the steps are:
 
-First, make sure Python packages `wheel <https://wheel.readthedocs.io/en/stable/>`_ and  `setuptools <https://setuptools.pypa.io/en/latest/index.html>`_ are installed on your system. Install ``wheel`` and ``setuptools`` using ``pip``:
+**Step 1**, make sure Python packages `wheel <https://wheel.readthedocs.io/en/stable/>`_ and  `setuptools <https://setuptools.pypa.io/en/latest/index.html>`_ are installed on your system. Install ``wheel`` and ``setuptools`` using ``pip``:
 
 .. tab:: Windows
     :new-set:
@@ -124,7 +170,7 @@ First, make sure Python packages `wheel <https://wheel.readthedocs.io/en/stable/
 
         $ pip install wheel setuptools
 
-Then, download the XOA Core source distribution from `XOA Core Releases <https://github.com/xenanetworks/open-automation-core/releases>`_. Unzip the archive and run the ``setup.py`` script to install the package:
+**Step 2**, download the XOA Core source distribution from `XOA Core Releases <https://github.com/xenanetworks/open-automation-core/releases>`_. Unzip the archive and run the ``setup.py`` script to install the package:
 
 .. tab:: Windows
     :new-set:
@@ -142,7 +188,7 @@ Then, download the XOA Core source distribution from `XOA Core Releases <https:/
         [xoa_core]$ python3 setup.py install
 
 
-If you want to distribute, you can build ``.whl`` file for distribution from the source:
+**Step 3**, if you want to distribute, you can build ``.whl`` file for distribution from the source:
 
 .. tab:: Windows
     :new-set:
@@ -161,7 +207,7 @@ If you want to distribute, you can build ``.whl`` file for distribution from the
 
 .. note::
 
-    If you install XOA Core from the source code, you need to install XOA Python API (PyPi package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) separately. This is because XOA Python API is treated as a 3rd-party dependency of XOA Core. You can go to `XOA Python API <https://github.com/xenanetworks/open-automation-python-api>`_ repository to learn how to install it.
+    If you install XOA Core from the source code, you need to install XOA Python API (PyPI package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) separately. This is because XOA Python API is treated as a 3rd-party dependency of XOA Core. You can go to `XOA Python API <https://github.com/xenanetworks/open-automation-python-api>`_ repository to learn how to install it.
 
 
 Uninstall Using ``pip``

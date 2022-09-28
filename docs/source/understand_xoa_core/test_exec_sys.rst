@@ -1,22 +1,20 @@
-.. _execution_sys:
-
 Test Execution System
 ======================
 
 XOA Core provides the following controlling methods of test suite execution:
 
-* Start test suite
-* Pause/continue test suite
-* Stop test suite
+* Start test
+* Pause/continue test
+* Stop test
 
-Start Test Suite
+Start Test
 ------------------
 
 Method: ``execution_id = my_core_controller.start_test_suite(<plugin_name>, <suite_config_dict>)``
 
-``<plugin_name>`` - must match the name from plugins ``meta.yml``.
+    ``<plugin_name>`` - must match the name from plugins ``meta.yml``.
 
-``<suite_config_dict>`` - must be a dictionary matching to the following structure:
+    ``<suite_config_dict>`` - must be a dictionary matching to the following structure:
 
 .. code-block:: python
     :caption: Dictionary structure for ``<suite_config_dict>``
@@ -44,7 +42,7 @@ If the test suite is successfully started, the function ``start_test_suite`` wil
     A test suite will not start if its test resources are not registered in :term:`Resource Manager`, or if one of its test resources is unavailable/disconnected.
 
 
-Pause/Continue Test Suite
+Pause/Continue Test
 --------------------------
 
 Method: ``await my_core_controller.running_test_toggle_pause(<execution_id>)``
@@ -56,7 +54,7 @@ User should use ``await self.state_conditions.wait_if_paused()``, where the test
     To apply pause/continue action, a valid ``execution_id`` must be passed into the method.
 
 
-Stop Test Suite
+Stop Test
 -----------------
 
 Method: ``await my_core_controller.running_test_stop(<execution_id>)``
