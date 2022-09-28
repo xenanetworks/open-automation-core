@@ -120,7 +120,6 @@ The code example in ``main.py`` below demonstrates a very basic flow.
 
 .. literalinclude:: ../code_example/main.py
     :language: python
-    :linenos:
 
 
 To execute the program, simply do:

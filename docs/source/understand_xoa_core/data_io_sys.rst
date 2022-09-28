@@ -10,7 +10,7 @@ Code Example of Message Subscription
 
 .. code-block:: python
     :caption: Message subscription example
-    :linenos:
+
 
     async for msg in c.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
         print(msg.dict())
@@ -23,7 +23,7 @@ Subsystem types are shown below:
 
 .. code-block:: python
     :caption: Subsystem types
-    :linenos:
+
 
     types.PIPE_EXECUTOR
 
@@ -34,7 +34,7 @@ Available filters types:
 
 .. code-block:: python
     :caption: Available filters types
-    :linenos:
+
 
     class EMsgType(Enum):
         STATE = "STATE"
