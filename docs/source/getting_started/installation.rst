@@ -210,8 +210,12 @@ If for some reason you need to install XOA Core manually from source, the steps 
     If you install XOA Core from the source code, you need to install XOA Python API (PyPI package name `xoa_driver <https://pypi.org/project/xoa-core/>`_) separately. This is because XOA Python API is treated as a 3rd-party dependency of XOA Core. You can go to `XOA Python API <https://github.com/xenanetworks/open-automation-python-api>`_ repository to learn how to install it.
 
 
-Uninstall Using ``pip``
-------------------------
+Uninstall and Remove Unused Dependencies
+------------------------------------------------------------
+
+``pip uninstall xoa-core`` can uninstall the package itself but not its dependencies. Leaving the package's dependencies in your environment can later create conflicting dependencies problem.
+
+We recommend install and use the `pip-autoremove <https://github.com/invl/pip-autoremove>`_ utility to remove a package plus unused dependencies.
 
 .. tab:: Windows
     :new-set:
@@ -219,18 +223,22 @@ Uninstall Using ``pip``
     .. code-block:: doscon
         :caption: Uninstall XOA Core in Windows environment.
 
-        > pip uninstall xoa-core
+        > pip install pip-autoremove
+        > pip-autoremove xoa-core -y
 
 .. tab:: macOS/Linux
 
     .. code-block:: console
         :caption: Uninstall XOA Core in macOS/Linux environment.
 
-        $ pip uninstall xoa-core
+        $ pip install pip-autoremove
+        $ pip-autoremove xoa-core -y
 
 .. seealso::
 
-    For more information, see the `pip uninstall <https://pip.pypa.io/en/stable/cli/pip_uninstall/#pip-uninstall>`_ reference.
+    See the `pip uninstall <https://pip.pypa.io/en/stable/cli/pip_uninstall/#pip-uninstall>`_ reference.
+
+    See `pip-autoremove <https://github.com/invl/pip-autoremove>`_ usage.
 
 
 
