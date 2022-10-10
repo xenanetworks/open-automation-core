@@ -38,14 +38,14 @@ async def main() -> None:
     # If you want to add a list of testers, you need to iterate through the list.
     await my_controller.add_tester(my_tester_credential)
 
-    # Getcurrently avaliable test suites names
+    # Get currently available test suites names
     print(my_controller.get_available_test_suites())
 
     # Load your test configuration data into the test suite and run.
     with open(TEST_CONFIG_PATH, "r") as f:
         data = json.load(f)
 
-    # Test suite name: "RFC-2544" is receaved from call of my_controller.get_available_test_suites()
+    # Test suite name: "RFC-2544" is received from call of my_controller.get_available_test_suites()
     execution_id = my_controller.start_test_suite("RFC-2544", data)
 
     # Subscribe to statistic messages.
