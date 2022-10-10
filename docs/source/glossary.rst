@@ -32,3 +32,12 @@ Glossary of Terms
 
     IDE
         An integrated development environment (IDE) is a software application that provides comprehensive facilities to computer programmers for software development.
+
+    XOA CLI
+        XOA Command-Line Interface. Xena provides a rich set of CLI commands for users to administer test chassis for test automation. `Read more here <https://xenanetworks.com/?knowledge-base=knowledge-base/automation/scripting-for-valkyrie-vantage-chimera/valkyrie-vantage-chimera-cli-scripting-guide/overview/intro>`_.
+
+    XOA Python API
+        The foundation of Xena OpenAutomation is its Python API (XOA Python API) that provides interfaces for engineers to manage Xena hardware and virtual test equipment.
+
+    XOA Core
+        `Xena OpenAutomation Core <https://github.com/xenanetworks/open-automation-core>`_ is an open test suite framework to execute XOA Test Suites as its plugins.
