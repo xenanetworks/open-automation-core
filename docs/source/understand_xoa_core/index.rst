@@ -3,7 +3,7 @@ Understanding XOA Core
 
 .. toctree::
 
-    overview
+    introduction
     resource_mgt_sys
     ts_plugin_sys
     test_exec_sys

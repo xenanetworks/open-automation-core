@@ -2,7 +2,7 @@
 Xena OpenAutomation Core Documentation
 ======================================
 
-Xena OpenAutomation Core (:term:`XOA` Core) is a framework for executing Xena automated test suites and managing Xena Xena's physical and virtual Traffic Generation and Analysis (:term:`TGA`) testers.
+Xena OpenAutomation Core (:term:`XOA Core`) is a framework for executing Xena automated test suites and managing Xena Xena's physical and virtual Traffic Generation and Analysis (:term:`TGA`) testers.
 
 The *Xena OpenAutomation Core Documentation* describes the basic architecture and how to run Xena's automated test suites.
 
