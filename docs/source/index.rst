@@ -25,7 +25,7 @@ The target audience of this document is test specialists who develop and run aut
    :maxdepth: 1
    :caption: Table of Content
 
-   introduction/about_xoa_core
+   introduction
    getting_started/index
    understand_xoa_core/index
    api_ref/index

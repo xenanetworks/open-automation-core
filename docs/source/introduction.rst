@@ -1,4 +1,4 @@
-About XOA Core
+Introduction
 ==============
 
 Xena OpenAutomation Core (:term:`XOA` Core) is the framework that provides a standardized way for developers and test specialists to develop, integrate, and execute test suites, as well as managing Xena's physical and virtual testers.
