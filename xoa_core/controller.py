@@ -1,4 +1,6 @@
+from __future__ import annotations
 import os
+from pathlib import Path
 import typing
 from .core.executors.manager import ExecutorsManager
 from .core.executors.executor import SuiteExecutor
@@ -16,12 +18,14 @@ if typing.TYPE_CHECKING:
 
 T = typing.TypeVar("T", bound="MainController")
 
+
 class MainController:
     """MainController - A main class of XOA-Core framework."""
 
-    __slots__ = ("__publisher", "__resources", "suites_library", "__execution_manager")
+    __slots__ = ("__is_started", "__publisher", "__resources", "suites_library", "__execution_manager")
 
-    def __init__(self, *, storage_path: typing.Optional[str] = None, mono: bool = False) -> None:
+    def __init__(self, *, storage_path: str | None = None, mono: bool = False) -> None:
+        self.__is_started = False
         __storage_path = os.path.join(os.getcwd(), "store") if not storage_path else storage_path
 
         self.__publisher = OutMessagesHandler()
@@ -30,11 +34,10 @@ class MainController:
 
         executor_pipe = self.__publisher.get_pipe(const.PIPE_EXECUTOR)
         self.__execution_manager = ExecutorsManager(executor_pipe, mono)
-        
+
         self.suites_library = PluginController()
 
-
-    def listen_changes(self, *names: str, _filter: typing.Optional[typing.Set["EMsgType"]] = None):
+    def listen_changes(self, *names: str, _filter: set["EMsgType"] | None = None):
         """Subscribe to the messages from different subsystems and test-suites."""
         return self.__publisher.changes(*names, _filter=_filter)
 
@@ -42,38 +45,43 @@ class MainController:
         return self.__setup().__await__()
 
     async def __setup(self: T) -> T:
-        await self.__resources
+        if not self.__is_started:
+            await self.__resources
+            self.__is_started = True
         return self
 
-    def register_lib(self, path: str) -> None:
+    def register_lib(self, path: str | Path) -> None:
         """Register lookup path of custom test suites library.
 
         :param path: lookup path of custom test suites library
-        :type path: str
+        :type path: str | Path
         """
         self.suites_library.register_path(path)
 
-    def get_available_test_suites(self) -> typing.List[str]:
+    def get_available_test_suites(self) -> list[str]:
         """Get a list of available test suite names.
 
         :return: a list of available test suites
-        :rtype: typing.List[str]
+        :rtype: list[str]
         """
         return self.suites_library.available_test_suites()
 
-    def get_test_suite_info(self, name: str) -> typing.Optional[typing.Dict[str, typing.Any]]:
+    def get_test_suite_info(self, name: str) -> dict[str, typing.Any] | None:
         """Get the info of a test suite.
 
         :param name: name of the test suite
         :type name: str
+
+        :return: dict of testsuite info or None
+        :rtype: dict[str, typing.Any] | None
         """
         return self.suites_library.suite_info(name)
 
-    async def list_testers(self) -> typing.Dict[str, "AllTesterTypes"]:
+    async def list_testers(self) -> dict[str, "AllTesterTypes"]:
         """List the added testers.
 
         :return: list of testers
-        :rtype: typing.Dict[str, "AllTesterTypes"]
+        :rtype: dict[str, "AllTesterTypes"]
         """
         return await self.__resources.get_all_testers()
 
@@ -111,13 +119,13 @@ class MainController:
         """
         await self.__resources.disconnect(tester_id)
 
-    def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any], *, debug_connection: bool = False) -> str:
+    def start_test_suite(self, test_suite_name: str, config: dict[str, typing.Any], *, debug_connection: bool = False) -> str:
         """Start test suite execution
 
         :param test_suite_name: test suite name
         :type test_suite_name: str
         :param config: test configuration data
-        :type config: typing.Dict[str, typing.Any]
+        :type config: dict[str, typing.Any]
         :return: test execution id
         :rtype: str
         """

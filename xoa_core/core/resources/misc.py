@@ -1,11 +1,12 @@
+from __future__ import annotations
 from typing import (
-    Optional,
     Type,
     Protocol,
 )
 from pydantic import SecretStr
 from xoa_driver import testers
 from .datasets import enums
+
 
 class IProps(Protocol):
     id: str
@@ -14,8 +15,9 @@ class IProps(Protocol):
     port: int
     password: SecretStr
 
-def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -> Optional[testers.GenericAnyTester]:
-    tester_type: Optional[Type[testers.GenericAnyTester]] = {
+
+def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -> testers.GenericAnyTester | None:
+    tester_type: Type[testers.GenericAnyTester] | None = {
         enums.EProductType.VALKYRIE: testers.L23Tester,
         enums.EProductType.CHIMERA: testers.L23Tester,
         enums.EProductType.VANTAGE: testers.L23Tester,

@@ -15,11 +15,14 @@ from dataclasses import dataclass, field
 if TYPE_CHECKING:
     from xoa_driver import testers
 from xoa_driver import utils
+from xoa_core.core import const
 from xoa_core.core.utils import decorators
 from xoa_core.core.resources.datasets import enums
 from .module import ModuleModel
 
+
 T = TypeVar("T", bound="TesterModel")
+
 
 @dataclass
 class TesterModel:
@@ -31,11 +34,11 @@ class TesterModel:
     reserved_by: str = ""
     is_connected: bool = False
     modules: Tuple[ModuleModel, ...] = field(default_factory=tuple)
-    id: Optional[constr(regex=r'^[a-fA-F\d]{32}$')] = None # type: ignore
+    id: Optional[constr(regex=const.TESTER_ID_PATTERN)] = None  # type: ignore
     keep_disconnected: bool = False
-    max_name_len: int = 0 # used by UI validation (Tester Name) & config validation
-    max_comment_len: int = 0 # used by UI validation (Tester Description) & config validation
-    max_password_len: int = 0 # used by UI validation (Tester Password) & config validation
+    max_name_len: int = 0  # used by UI validation (Tester Name) & config validation
+    max_comment_len: int = 0  # used by UI validation (Tester Description) & config validation
+    max_password_len: int = 0  # used by UI validation (Tester Password) & config validation
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -63,7 +66,7 @@ class TesterModel:
             max_name_len=cpb.max_name_len,
             max_comment_len=cpb.max_name_len,
             max_password_len=cpb.max_name_len,
-            modules = tuple(
+            modules=tuple(
                 await asyncio.gather(*[
                     ModuleModel.from_module(module, notifier)
                     for module in tester.modules

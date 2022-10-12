@@ -1,4 +1,6 @@
+from __future__ import annotations
 import os
+from pathlib import Path
 from typing import (
     Generator,
     Optional,
@@ -16,10 +18,10 @@ class PluginController:
     __slots__ = ("__paths", "__test_suites")
 
     def __init__(self) -> None:
-        self.__paths: Tuple[str, ...] = tuple()
+        self.__paths: Tuple[str | Path, ...] = tuple()
         self.__test_suites: Dict[str, "datasets.PluginData"] = dict()
 
-    def register_path(self, path: str) -> None:
+    def register_path(self, path: str | Path) -> None:
         """Register custom path of plugins"""
         self.__paths += (
             os.path.abspath(path)
@@ -48,7 +50,7 @@ class PluginController:
             raise exceptions.TestSuiteVersionError(name, plugin_data.meta.core_version)
         return plugin_data
 
-    def get_plugin(self, name: str, debug: bool=False) -> "datasets.Plugin":
+    def get_plugin(self, name: str, debug: bool = False) -> "datasets.Plugin":
         plugin_data = self.get_plugin_data(name)
         return datasets.Plugin(plugin_data, debug)
 

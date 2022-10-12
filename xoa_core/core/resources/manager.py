@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from typing import (
     TYPE_CHECKING,
@@ -5,7 +7,6 @@ from typing import (
     Generator,
     TypeVar,
     Union,
-    Dict,
     Any,
 )
 if TYPE_CHECKING:
@@ -35,6 +36,8 @@ from .exceptions import (
 AllTesterTypes = Union["CredentialsModel", "TesterExternalModel"]
 
 RM = TypeVar("RM", bound="ResourcesManager")
+
+
 class ResourcesManager:
     __slots__ = ("_msg_pipe", "__precision_storage", "__observer", "_pool", )
 
@@ -79,15 +82,15 @@ class ResourcesManager:
                 return True
         return False
 
-    async def remove_tester(self, id: str):
+    async def remove_tester(self, id: str) -> None:
         self.__precision_storage.forget(id)
         await self._pool.suspend(id)
 
-    async def update_tester(self):
+    async def update_tester(self) -> None:
         """ User Apply Changes """
         pass
 
-    async def get_all_testers(self) -> Dict[str, "AllTesterTypes"]:
+    async def get_all_testers(self) -> dict[str, "AllTesterTypes"]:
         known_testers = await self.__precision_storage.get_all()
         all_credentials = {tid: TesterExternalModel.parse_obj(credentials) for tid, credentials in known_testers.items()}
         return {**all_credentials, **self._pool.avaliable_resources}
@@ -107,7 +110,7 @@ class ResourcesManager:
         await self.__precision_storage.keep_disconnected(id)
         await self._pool.suspend(id)
 
-    def get_testers_by_id(self, testers_ids: Iterable[str], username: str, debug=False) -> Dict[str, "testers.GenericAnyTester"]:
+    def get_testers_by_id(self, testers_ids: Iterable[str], username: str, debug=False) -> dict[str, "testers.GenericAnyTester"]:
         testers = {}
         for tester_id in testers_ids:
             resource = self._pool.use_resource(tester_id)
@@ -131,4 +134,3 @@ class ResourcesManager:
 
     async def __tester_info_change(self, data: "TesterExternalModel") -> None:
         self._msg_pipe.transmit(data)
-
