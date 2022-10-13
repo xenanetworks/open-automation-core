@@ -1,4 +1,4 @@
-introduction
+Introduction
 =============
 
 The XOA Core is an asynchronous Python framework that can be represented by four subsystems:
