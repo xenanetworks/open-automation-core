@@ -89,7 +89,7 @@ Install to Global Namespace
         $ pip install xoa-core>=1.0.3     # minimum version
 
 
-Install in Virtual Environment
+Install in Activated Virtual Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Install XOA Core in a virtual environment, so it does not pollute your global namespace. 
@@ -101,8 +101,8 @@ For example, your project folder is called ``/my_xoa_project``.
     .. code-block:: doscon
         :caption: Install XOA Core in a virtual environment in Windows from PyPI.
 
-        [my_xoa_project]> python -m venv ./env
-        [my_xoa_project]> source ./env/bin/activate
+        [my_xoa_project]> python -m venv .\env
+        [my_xoa_project]> .\env\Scripts\activate
 
         (env) [my_xoa_project]> pip install xoa-core 
 
@@ -113,6 +113,7 @@ For example, your project folder is called ``/my_xoa_project``.
 
         [my_xoa_project]$ python3 -m venv ./env
         [my_xoa_project]$ source ./env/bin/activate
+
         (env) [my_xoa_project]$ pip install xoa-core
 
 .. seealso::
@@ -120,6 +121,28 @@ For example, your project folder is called ``/my_xoa_project``.
     * `Virtual Python environment <https://packaging.python.org/en/latest/tutorials/installing-packages/#creating-and-using-virtual-environments>`_
     * `virtualenv <https://virtualenv.pypa.io/en/latest/#>`_
     * `venv <https://docs.python.org/3/library/venv.html>`_
+
+
+Deactivate Virtual Environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can deactivate a virtual environment by typing ``deactivate`` in your shell.
+
+.. tab:: Windows
+
+    .. code-block:: doscon
+        :caption: Deactivate virtual environment on Windows.
+
+        (env) [my_xoa_project]> deactivate
+        [my_xoa_project]>
+
+.. tab:: macOS/Linux
+
+    .. code-block:: console
+        :caption: Deactivate virtual environment on macOS/Linux.
+        
+        (env) [my_xoa_project]$ deactivate
+        [my_xoa_project]$
 
 
 Upgrading From PyPI Using ``pip``
