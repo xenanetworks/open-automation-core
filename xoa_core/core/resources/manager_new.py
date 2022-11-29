@@ -42,11 +42,11 @@ RM = TypeVar("RM", bound="ResourcesManager")
 class ResourcesManager:
     __slots__ = ("_msg_pipe", "__precision_storage", "__observer", "_pool", )
 
-    def __init__(self, msg_pipe: "TMesagesPipe", data_storage_path: str) -> None:
+    def __init__(self, msg_pipe: "TMesagesPipe", data_storage: storage.PrecisionStorage) -> None:
         self._msg_pipe = msg_pipe
-        self.__precision_storage = storage.PrecisionStorage(data_storage_path)
+        self.__precision_storage = data_storage
         self.__observer = observer.SimpleObserver()
-        self._pool = ResourcesPool(self.__observer)
+        self._pool = ResourcesPool()
 
         self.__observer.subscribe(EResourcesEvents.ADDED, self.__on_tester_added)
         self.__observer.subscribe(EResourcesEvents.DISCONNECTED, self.__on_tester_disconnected)

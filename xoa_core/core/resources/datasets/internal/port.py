@@ -91,18 +91,18 @@ async def _prepare_values(port: "ports.GenericAnyPort") -> Dict[str, Any]:
             p_vals["speed_current"] = cur.port_speed
             p_vals["speed_reduction"] = None if red.ppm == -1 else red.ppm
             p_vals["packet_limit"] = tx_pl.packet_count_limit
-        
+
         cpb = port.info.capabilities
         p_vals["max_speed"] = cpb.max_speed
-        p_vals["max_speed_reduction"] = cpb.max_speed_reduction 
-        p_vals["min_interframe_gap"] = cpb.min_interframe_gap 
-        p_vals["max_interframe_gap"] = cpb.max_interframe_gap 
-        p_vals["max_streams_per_port"] = cpb.max_streams_per_port 
-        p_vals["min_packet_length"] = cpb.min_packet_length 
-        p_vals["max_packet_length"] = cpb.max_packet_length 
-        p_vals["max_header_length"] = cpb.max_header_length 
-        p_vals["max_protocol_segments"] = cpb.max_protocol_segments 
-        p_vals["max_repeat"] = cpb.max_repeat 
+        p_vals["max_speed_reduction"] = cpb.max_speed_reduction
+        p_vals["min_interframe_gap"] = cpb.min_interframe_gap
+        p_vals["max_interframe_gap"] = cpb.max_interframe_gap
+        p_vals["max_streams_per_port"] = cpb.max_streams_per_port
+        p_vals["min_packet_length"] = cpb.min_packet_length
+        p_vals["max_packet_length"] = cpb.max_packet_length
+        p_vals["max_header_length"] = cpb.max_header_length
+        p_vals["max_protocol_segments"] = cpb.max_protocol_segments
+        p_vals["max_repeat"] = cpb.max_repeat
         p_vals["can_set_autoneg"] = bool(cpb.can_set_autoneg)
         p_vals["can_tcp_checksum"] = bool(cpb.can_tcp_checksum)
         p_vals["can_udp_checksum"] = bool(cpb.can_udp_checksum)

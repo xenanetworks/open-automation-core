@@ -1,6 +1,6 @@
 from enum import (
+    Enum,
     IntEnum,
-    auto,
 )
 
 
@@ -12,10 +12,11 @@ class EProductType(IntEnum):
     CHIMERA = 5
 
 
-class EResourcesEvents(IntEnum):
-    ADDED = auto()
-    EXCLUDED = auto()
-    INFO_CHANGE_TESTER = auto()
-    INFO_CHANGE_MODULE = auto()
-    INFO_CHANGE_PORT = auto()
-    ERROR = auto()
+class EResourcesEvents(Enum):
+    ADDED = "ADDED"
+    REMOVED = "REMOVED"
+    DISCONNECTED = "DISCONNECTED"
+    INFO_CHANGE_TESTER = "INFO_CHANGE_TESTER"
+    INFO_CHANGE_MODULE = "INFO_CHANGE_MODULE"
+    INFO_CHANGE_PORT = "INFO_CHANGE_PORT"
+    ERROR = "ERROR"

@@ -7,17 +7,33 @@ if TYPE_CHECKING:
 from .datasets.internal.tester import TesterModel
 from .datasets.internal.credentials import CredentialsModel
 from .datasets.external.tester import TesterExternalModel
-from .types import TesterID
+from .types import (
+    TesterID,
+    IProps,
+)
+from .exceptions import (
+    InvalidTesterTypeError,
+    TesterCommunicationError,
+)
+from .misc import get_tester_inst
 
 
 class Resource:
-    __slots__ = ("tester", "dataset", "notify_updates")
+    __slots__ = ("tester", "dataset", "props", "notify_updates")
 
-    def __init__(self, tester: "testers.GenericAnyTester", on_update: Callable) -> None:
-        self.tester = tester
+    def __init__(self, props: IProps, on_update: Callable) -> None:
+        if tester_ := get_tester_inst(props):
+            self.tester = tester_
+        else:
+            raise InvalidTesterTypeError(props)
+        self.props = props
         self.notify_updates = on_update
 
     async def init_dataset(self, id: TesterID, product_type: "enums.EProductType") -> None:
+        try:
+            await self.tester
+        except Exception as e:
+            raise TesterCommunicationError(self.props, e) from None
         self.dataset = await TesterModel.from_tester(id, product_type, self.tester, self.__updated)
 
     def on_disconnect_action(self, action: Callable) -> None:
