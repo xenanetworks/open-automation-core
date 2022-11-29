@@ -1,5 +1,5 @@
 xoa_driver>=1.0.0
-pydantic==1.8.2
+pydantic>=1.8.2
 semver==2.13.0
 loguru==0.6.0
 oyaml==1.0
