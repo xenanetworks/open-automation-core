@@ -7,10 +7,7 @@ if TYPE_CHECKING:
 from .datasets.internal.tester import TesterModel
 from .datasets.internal.credentials import CredentialsModel
 from .datasets.external.tester import TesterExternalModel
-from .types import (
-    TesterID,
-    IProps,
-)
+from .types import TesterID
 from .exceptions import (
     InvalidTesterTypeError,
     TesterCommunicationError,
@@ -19,22 +16,27 @@ from .misc import get_tester_inst
 
 
 class Resource:
-    __slots__ = ("tester", "dataset", "props", "notify_updates")
+    __slots__ = ("tester", "dataset", "credentials", "notify_updates")
 
-    def __init__(self, props: IProps, on_update: Callable) -> None:
-        if tester_ := get_tester_inst(props):
+    def __init__(self, credentials: CredentialsModel, on_update: Callable) -> None:
+        if tester_ := get_tester_inst(credentials):
             self.tester = tester_
         else:
-            raise InvalidTesterTypeError(props)
-        self.props = props
+            raise InvalidTesterTypeError(credentials)
+        self.credentials = credentials
         self.notify_updates = on_update
 
-    async def init_dataset(self, id: TesterID, product_type: "enums.EProductType") -> None:
+    async def init_dataset(self) -> None:
         try:
             await self.tester
         except Exception as e:
-            raise TesterCommunicationError(self.props, e) from None
-        self.dataset = await TesterModel.from_tester(id, product_type, self.tester, self.__updated)
+            raise TesterCommunicationError(self.credentials, e) from None
+        self.dataset = await TesterModel.from_tester(
+            self.credentials.id,
+            self.credentials.product,
+            self.tester,
+            self.__updated
+        )
 
     def on_disconnect_action(self, action: Callable) -> None:
         self.tester.on_disconnected(
@@ -54,7 +56,3 @@ class Resource:
     @property
     def as_pydantic(self) -> TesterExternalModel:
         return TesterExternalModel.parse_obj(self.dataset)
-
-    @property
-    def credentials(self) -> CredentialsModel:
-        return CredentialsModel.construct(**asdict(self.dataset))
