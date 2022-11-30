@@ -1,8 +1,14 @@
 from __future__ import annotations
-from typing import Type
+from typing import (
+    Type,
+    Protocol,
+)
+from pydantic import SecretStr
 from xoa_driver import testers
 from .datasets import enums
-from .types import IProps
+
+
+
 
 
 def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -> testers.GenericAnyTester | None:
@@ -20,6 +26,3 @@ def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -
         port=props.port,
         debug=debug,
     ) if tester_type else None
-
-
-

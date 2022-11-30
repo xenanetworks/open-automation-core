@@ -1,17 +1,17 @@
 import typing
 if typing.TYPE_CHECKING:
-    from .types import IProps
+    from . import misc
 
 
 class InvalidTesterTypeError(ValueError):
-    def __init__(self, props: "IProps") -> None:
+    def __init__(self, props: "misc.IProps") -> None:
         self.props = props
         self.msg = f"Can't identify Tester Type: {props.product}"
         super().__init__(self.msg)
 
 
 class TesterCommunicationError(Exception):
-    def __init__(self, props: "IProps", error: Exception) -> None:
+    def __init__(self, props: "misc.IProps", error: Exception) -> None:
         self.props = props
         self.error = error
         self.msg = f"Tester with credentials: {props} encountering communication error: {error}"

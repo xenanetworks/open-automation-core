@@ -1,11 +1,13 @@
 from __future__ import annotations
-from functools import partial
-from typing_extensions import Self
 
+import asyncio
 from typing import (
     TYPE_CHECKING,
     Iterable,
     Generator,
+    # NewType,
+    TypeVar,
+    Union,
     Any,
 )
 if TYPE_CHECKING:
@@ -16,10 +18,9 @@ from .datasets.external.tester import TesterExternalModel
 
 from xoa_core.core.utils import observer
 
-from .resource import Resource
-from .pool import ResourcesPool
+from .resource_new import Resource
+from .pool_new import ResourcesPool
 from .storage import PrecisionStorage
-from .types import TesterID
 
 from .datasets.enums import EResourcesEvents
 from .datasets.external import credentials
@@ -33,13 +34,17 @@ from .exceptions import (
     ResourceNotAvaliableError
 )
 
+AllTesterTypes = Union["CredentialsModel", "TesterExternalModel"]
+
+RM = TypeVar("RM", bound="ResourcesManager")
+
 
 class ResourcesManager:
-    __slots__ = ("_msg_pipe", "__store", "__observer", "_pool",)
+    __slots__ = ("_msg_pipe", "__precision_storage", "__observer", "_pool", )
 
     def __init__(self, msg_pipe: "TMesagesPipe", data_storage: PrecisionStorage) -> None:
         self._msg_pipe = msg_pipe
-        self.__store = data_storage
+        self.__precision_storage = data_storage
         self.__observer = observer.SimpleObserver()
         self._pool = ResourcesPool()
 
@@ -48,78 +53,70 @@ class ResourcesManager:
         self.__observer.subscribe(EResourcesEvents.INFO_CHANGE_TESTER, self.__on_tester_info_change)
         self.__observer.subscribe(EResourcesEvents.REMOVED, self.__on_tester_removed)
 
-    def __await__(self) -> Generator[Any, None, Self]:
+    def __await__(self: RM) -> Generator[Any, None, RM]:
         return self.__setup().__await__()
 
-    async def __setup(self) -> Self:
-        notifier = partial(self.__observer.emit, EResourcesEvents.INFO_CHANGE_TESTER)
-        known_testers = await self.__store.get_all()
-        for credential in known_testers:
-            self._pool.add(Resource(credential, notifier))
-        await self._pool.all.connect()
-        # tasks = tuple(
-        #     self._pool.add(tester)
-        #     for tester in known_testers.values()
-        #     if not tester.keep_disconnected
-        # )
-        # exceptions = filter(
-        #     None,
-        #     await asyncio.gather(*tasks, return_exceptions=True)
-        # )
-        # for err in exceptions:
-        #     await self.__precision_storage.keep_disconnected(err.props.id)
-        #     self._msg_pipe.transmit_err(err)
+    async def __setup(self: RM) -> RM:
+        known_testers = await self.__precision_storage.get_all()
+        tasks = tuple(
+            self._pool.add(tester)
+            for tester in known_testers.values()
+            if not tester.keep_disconnected
+        )
+        exceptions = filter(
+            None,
+            await asyncio.gather(*tasks, return_exceptions=True)
+        )
+        for err in exceptions:
+            await self.__precision_storage.keep_disconnected(err.props.id)
+            self._msg_pipe.transmit_err(err)
         return self
 
-    async def add_tester(self, credentials: "credentials.Credentials") -> bool:
-        notifier = partial(self.__observer.emit, EResourcesEvents.INFO_CHANGE_TESTER)
-        try:
-            new_resource = Resource(credentials, notifier)  # InvalidTesterTypeError
-            await new_resource.connect()  # TesterCommunicationError
-        except (InvalidTesterTypeError, TesterCommunicationError) as err:
-            self._msg_pipe.transmit_err(err)
-        else:
-            await self.__store.save(new_resource.as_dict)
-            self._pool.add(new_resource)
-            return True
+    async def add_tester(self, params: "credentials.Credentials") -> bool:
+        if not await self.__precision_storage.is_registered(params.id):
+            credentials = CredentialsModel.from_external(params)
+            try:
+                await self._pool.add(credentials)
+            except (InvalidTesterTypeError, TesterCommunicationError) as err:
+                self._msg_pipe.transmit_err(err)
+            else:
+                self.__precision_storage.remember(credentials)
+                return True
         return False
 
-    async def remove_tester(self, id: TesterID) -> None:
-        if tester := self._pool.extract(id):
-            await tester.disconnect()
-            await self.__store.delete(tester.id)
+    async def remove_tester(self, id: str) -> None:
+        self.__precision_storage.forget(id)
+        await self._pool.suspend(id)
+        await self.__on_tester_removed(id)
 
     async def update_tester(self) -> None:
         """ User Apply Changes """
         pass
 
-    async def get_all_testers(self) -> dict[str, TesterExternalModel]:
-        # known_testers = await self.__store.get_all()
-        self._pool.all.get_dict()
+    async def get_all_testers(self) -> dict[str, "AllTesterTypes"]:
+        known_testers = await self.__precision_storage.get_all()
         all_credentials = {tid: TesterExternalModel.parse_obj(credentials) for tid, credentials in known_testers.items()}
         return {**all_credentials, **self._pool.avaliable_resources}
 
-    async def connect(self, id: TesterID) -> None:
-        if resource := self._pool.get(id):
-            await resource.connect()
-        # if obj := await self.__store.get(id):
-        #     try:
-        #         await self._pool.add(obj)
-        #     except (InvalidTesterTypeError, TesterCommunicationError) as err:
-        #         self._msg_pipe.transmit_err(err)
-        #     else:
-        #         await self.__precision_storage.keep_connected(id)
+    async def connect(self, id: str) -> None:
+        if id in self._pool.res_identifiers:
+            return None
+        if obj := await self.__precision_storage.get(id):
+            try:
+                await self._pool.add(obj)
+            except (InvalidTesterTypeError, TesterCommunicationError) as err:
+                self._msg_pipe.transmit_err(err)
+            else:
+                await self.__precision_storage.keep_connected(id)
 
-    async def disconnect(self, id: TesterID) -> None:
-        if resource := self._pool.get(id):
-            await resource.disconnect()
-        # await self.__precision_storage.keep_disconnected(id)
-        # await self._pool.suspend(id)
+    async def disconnect(self, id: str) -> None:
+        await self.__precision_storage.keep_disconnected(id)
+        await self._pool.suspend(id)
 
-    def get_testers_by_id(self, testers_ids: Iterable[TesterID], username: str, debug=False) -> dict[str, "testers.GenericAnyTester"]:
+    def get_testers_by_id(self, testers_ids: Iterable[str], username: str, debug=False) -> dict[str, "testers.GenericAnyTester"]:
         testers = {}
         for tester_id in testers_ids:
-            resource = self._pool.get(tester_id)
+            resource = self._pool.use_resource(tester_id)
             if resource is None:
                 raise ResourceNotAvaliableError(tester_id)
             tester = misc.get_tester_inst(resource.credentials, username, debug)
@@ -127,8 +124,6 @@ class ResourcesManager:
                 raise InvalidTesterTypeError(resource.credentials)
             testers[tester_id] = tester
         return testers
-
-
 
     async def __on_tester_added(self, data: "TesterExternalModel") -> None:
         msg = dict(
@@ -138,7 +133,7 @@ class ResourcesManager:
         self._msg_pipe.transmit(msg)
 
     async def __on_tester_disconnected(self, id: str) -> None:
-        if obj := await self.__store.get(id):
+        if obj := await self.__precision_storage.get(id):
             self._msg_pipe.transmit(TesterExternalModel.parse_obj(obj))
             if obj.keep_disconnected:
                 return None

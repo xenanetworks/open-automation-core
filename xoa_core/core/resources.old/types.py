@@ -7,6 +7,7 @@ TesterID = NewType("TesterID", str)
 
 
 class IProps(Protocol):
+    id: str
     product: EProductType
     host: str
     port: int

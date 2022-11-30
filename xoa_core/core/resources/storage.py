@@ -1,80 +1,64 @@
+from __future__ import annotations
 import asyncio
+from pathlib import Path
 import shelve
-from functools import (
-    partial,
-    wraps,
-    partialmethod,
-)
-from typing import (
-    Dict,
-    Optional,
-    TYPE_CHECKING
-)
-
+from functools import partial
+from typing import TypeVar
 from .datasets.internal.credentials import CredentialsModel
-if TYPE_CHECKING:
-    from .misc import IProps
+from .types import TesterID
 
 
-class PrecisionStorage:
-    __slots__ = ("_lock", "_loop", "__open")
-
-    def __init__(self, storage_path: str) -> None:
-        self._lock = asyncio.Lock()
-        self._loop = asyncio.get_event_loop()
-        self.__open = partial(shelve.open, storage_path)
-
-    def _run_in_executor(self, func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            async with self._lock:
-                return await self._loop.run_in_executor(None, func, *args, **kwargs)
-        return wrapper
-
-    def _insert(self, params: "IProps") -> None:
-        with self.__open() as db:
+class Methods:
+    @staticmethod
+    def save(open_db: partial[shelve.Shelf], params: CredentialsModel) -> None:
+        with open_db() as db:
             db[params.id] = CredentialsModel.parse_obj(params)
 
-    def _get_all(self) -> Dict[str, "CredentialsModel"]:
-        with self.__open() as db:
-            return dict(db)  # type: ignore
+    @staticmethod
+    def get_all(open_db: partial[shelve.Shelf]) -> tuple[CredentialsModel]:
+        with open_db() as db:
+            return tuple(db.values())
 
-    def _get(self, id: str) -> Optional["CredentialsModel"]:
-        with self.__open() as db:
-            return db.get(id, None)  # type: ignore
-
-    def _delete(self, id: str) -> None:
-        with self.__open() as db:
+    @staticmethod
+    def delete(open_db: partial[shelve.Shelf], id: TesterID) -> None:
+        with open_db() as db:
             if id not in db:
                 return None
             del db[id]
 
-    def _contains(self, id: str) -> bool:
-        with self.__open() as db:
+    @staticmethod
+    def is_exist(open_db: partial[shelve.Shelf], id: TesterID) -> bool:
+        with open_db() as db:
             return id in db
 
-    async def get_all(self) -> Dict[str, "CredentialsModel"]:
-        return await self._run_in_executor(self._get_all)()
 
-    async def get(self, id: str) -> Optional["CredentialsModel"]:
-        return await self._run_in_executor(self._get)(id)
+T = TypeVar("T")
 
-    async def is_registered(self, id: str) -> bool:
-        return await self._run_in_executor(self._contains)(id)
 
-    async def keep_disconnected(self, id: str, value: bool = True) -> None:
-        if obj := await self.get(id):
-            obj.keep_disconnected = value
-            self.remember(obj)
+class PrecisionStorage:
+    __slots__ = ("_lock", "_loop", "__open",)
 
-    keep_connected = partialmethod(keep_disconnected, value=False)
+    def __init__(self, storage_path: Path) -> None:
+        self._lock = asyncio.Lock()
+        self._loop = asyncio.get_event_loop()
+        self.__open = partial(shelve.open, str(storage_path))
 
-    def remember(self, params: "IProps") -> None:
-        asyncio.create_task(
-            self._run_in_executor(self._insert)(params)
-        )
+    async def __run(self, func: partial[T]) -> T:
+        async with self._lock:
+            return await self._loop.run_in_executor(None, func)
 
-    def forget(self, id: str) -> None:
-        asyncio.create_task(
-            self._run_in_executor(self._delete)(id)
-        )
+    async def get_all(self) -> tuple[CredentialsModel]:
+        method = partial(Methods.get_all, self.__open)
+        return await self.__run(method)
+
+    async def is_registered(self, t_id: TesterID) -> bool:
+        method = partial(Methods.is_exist, self.__open, t_id)
+        return await self.__run(method)
+
+    async def save(self, params: CredentialsModel) -> None:
+        method = partial(Methods.save, self.__open, params)
+        return await self.__run(method)
+
+    async def delete(self, t_id: TesterID) -> None:
+        method = partial(Methods.delete, self.__open, t_id)
+        return await self.__run(method)

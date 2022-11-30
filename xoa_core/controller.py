@@ -1,22 +1,20 @@
 from __future__ import annotations
-import os
+from typing_extensions import Self
 from pathlib import Path
 import typing
 from .core.executors.manager import ExecutorsManager
 from .core.executors.executor import SuiteExecutor
 
 from .core.messenger.handler import OutMessagesHandler
-from .core.resources.manager import ResourcesManager, AllTesterTypes
+from .core.messenger.misc import Message
+from .core.resources.manager import ResourcesManager
+from .core.resources.storage import PrecisionStorage
 from .core.test_suites.controller import PluginController
-
 from .core import const
-
 
 if typing.TYPE_CHECKING:
     from .types import EMsgType
     from .core.resources.datasets.external import credentials
-
-T = typing.TypeVar("T", bound="MainController")
 
 
 class MainController:
@@ -24,27 +22,28 @@ class MainController:
 
     __slots__ = ("__is_started", "__publisher", "__resources", "suites_library", "__execution_manager")
 
-    def __init__(self, *, storage_path: str | None = None, mono: bool = False) -> None:
+    def __init__(self, *, storage_path: Path | str | None = None, mono: bool = False) -> None:
         self.__is_started = False
-        __storage_path = os.path.join(os.getcwd(), "store") if not storage_path else storage_path
+        __storage_path = Path.cwd() / "store" if not storage_path else Path(storage_path)
 
         self.__publisher = OutMessagesHandler()
         resources_pipe = self.__publisher.get_pipe(const.PIPE_RESOURCES)
-        self.__resources = ResourcesManager(resources_pipe, __storage_path)
+        storage = PrecisionStorage(__storage_path)
+        self.__resources = ResourcesManager(resources_pipe, storage)
 
         executor_pipe = self.__publisher.get_pipe(const.PIPE_EXECUTOR)
         self.__execution_manager = ExecutorsManager(executor_pipe, mono)
 
         self.suites_library = PluginController()
 
-    def listen_changes(self, *names: str, _filter: set["EMsgType"] | None = None):
+    def listen_changes(self, *names: str, _filter: set["EMsgType"] | None = None) -> typing.AsyncGenerator[Message, None]:
         """Subscribe to the messages from different subsystems and test-suites."""
         return self.__publisher.changes(*names, _filter=_filter)
 
-    def __await__(self):
+    def __await__(self) -> typing.Generator[typing.Any, None, Self]:
         return self.__setup().__await__()
 
-    async def __setup(self: T) -> T:
+    async def __setup(self) -> Self:
         if not self.__is_started:
             await self.__resources
             self.__is_started = True
