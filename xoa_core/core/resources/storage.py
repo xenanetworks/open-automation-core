@@ -3,19 +3,24 @@ import asyncio
 from pathlib import Path
 import shelve
 from functools import partial
-from typing import TypeVar
-from .datasets.internal.credentials import CredentialsModel
-from .types import TesterID
+from typing import Protocol, TypeVar
+from .types import TesterID, StorageResource
+
+
+class Resource(Protocol):
+    @property
+    def store_data(self) -> StorageResource:
+        ...
 
 
 class Methods:
     @staticmethod
-    def save(open_db: partial[shelve.Shelf], params: CredentialsModel) -> None:
+    def save(open_db: partial[shelve.Shelf], params: StorageResource) -> None:
         with open_db() as db:
-            db[params.id] = CredentialsModel.parse_obj(params)
+            db[params["id"]] = params
 
     @staticmethod
-    def get_all(open_db: partial[shelve.Shelf]) -> tuple[CredentialsModel]:
+    def get_all(open_db: partial[shelve.Shelf]) -> tuple[StorageResource]:
         with open_db() as db:
             return tuple(db.values())
 
@@ -47,7 +52,7 @@ class PrecisionStorage:
         async with self._lock:
             return await self._loop.run_in_executor(None, func)
 
-    async def get_all(self) -> tuple[CredentialsModel]:
+    async def get_all(self) -> tuple[StorageResource]:
         method = partial(Methods.get_all, self.__open)
         return await self.__run(method)
 
@@ -55,8 +60,8 @@ class PrecisionStorage:
         method = partial(Methods.is_exist, self.__open, t_id)
         return await self.__run(method)
 
-    async def save(self, params: CredentialsModel) -> None:
-        method = partial(Methods.save, self.__open, params)
+    async def save(self, resource: Resource) -> None:
+        method = partial(Methods.save, self.__open, resource.store_data)
         return await self.__run(method)
 
     async def delete(self, t_id: TesterID) -> None:

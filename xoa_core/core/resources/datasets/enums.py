@@ -1,7 +1,4 @@
-from enum import (
-    Enum,
-    IntEnum,
-)
+from enum import IntEnum
 
 
 class EProductType(IntEnum):
@@ -12,11 +9,11 @@ class EProductType(IntEnum):
     CHIMERA = 5
 
 
-class EResourcesEvents(Enum):
-    ADDED = "ADDED"
-    REMOVED = "REMOVED"
-    DISCONNECTED = "DISCONNECTED"
-    INFO_CHANGE_TESTER = "INFO_CHANGE_TESTER"
-    INFO_CHANGE_MODULE = "INFO_CHANGE_MODULE"
-    INFO_CHANGE_PORT = "INFO_CHANGE_PORT"
-    ERROR = "ERROR"
+# class EResourcesEvents(Enum):
+#     ADDED = "ADDED"
+#     REMOVED = "REMOVED"
+#     DISCONNECTED = "DISCONNECTED"
+#     INFO_CHANGE_TESTER = "INFO_CHANGE_TESTER"
+#     INFO_CHANGE_MODULE = "INFO_CHANGE_MODULE"
+#     INFO_CHANGE_PORT = "INFO_CHANGE_PORT"
+#     ERROR = "ERROR"

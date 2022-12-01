@@ -11,6 +11,7 @@ from .core.resources.manager import ResourcesManager
 from .core.resources.storage import PrecisionStorage
 from .core.test_suites.controller import PluginController
 from .core import const
+from .types import TesterID, TesterExternalModel
 
 if typing.TYPE_CHECKING:
     from .types import EMsgType
@@ -45,7 +46,7 @@ class MainController:
 
     async def __setup(self) -> Self:
         if not self.__is_started:
-            await self.__resources
+            await self.__resources.start()
             self.__is_started = True
         return self
 
@@ -76,7 +77,7 @@ class MainController:
         """
         return self.suites_library.suite_info(name)
 
-    async def list_testers(self) -> dict[str, "AllTesterTypes"]:
+    async def list_testers(self) -> dict[TesterID, "TesterExternalModel"]:
         """List the added testers.
 
         :return: list of testers
@@ -94,27 +95,27 @@ class MainController:
         """
         return await self.__resources.add_tester(credentials)
 
-    async def remove_tester(self, tester_id: str) -> None:
+    async def remove_tester(self, tester_id: TesterID) -> None:
         """Remove a tester.
 
         :param tester_id: tester id
-        :type tester_id: str
+        :type tester_id: TesterID
         """
         await self.__resources.remove_tester(tester_id)
 
-    async def connect_tester(self, tester_id: str) -> None:
+    async def connect_tester(self, tester_id: TesterID) -> None:
         """Establis connection to a disconnected tester.
 
         :param tester_id: tester id
-        :type tester_id: str
+        :type tester_id: TesterID
         """
         await self.__resources.connect(tester_id)
 
-    async def disconnect_tester(self, tester_id: str) -> None:
+    async def disconnect_tester(self, tester_id: TesterID) -> None:
         """Disconnect from a tester.
 
         :param tester_id: tester id
-        :type tester_id: str
+        :type tester_id: TesterID
         """
         await self.__resources.disconnect(tester_id)
 

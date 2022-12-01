@@ -20,6 +20,3 @@ def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -
         port=props.port,
         debug=debug,
     ) if tester_type else None
-
-
-

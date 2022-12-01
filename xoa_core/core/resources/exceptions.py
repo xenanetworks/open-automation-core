@@ -18,8 +18,22 @@ class TesterCommunicationError(Exception):
         super().__init__(self.msg)
 
 
-class ResourceNotAvaliableError(Exception):
+class UnknownResourceError(Exception):
     def __init__(self, tester_id) -> None:
         self.tester_id = tester_id
-        self.msg = f"Tester of id: <{self.tester_id}> is not available."
+        self.msg = f"Unknown tester of id: <{self.tester_id}>."
+        super().__init__(self.msg)
+
+
+class IsDisconnectedError(Exception):
+    def __init__(self, tester_id) -> None:
+        self.tester_id = tester_id
+        self.msg = f"Tester: <{self.tester_id}> is already disconnected."
+        super().__init__(self.msg)
+
+
+class IsConnectedError(Exception):
+    def __init__(self, tester_id) -> None:
+        self.tester_id = tester_id
+        self.msg = f"Tester: <{self.tester_id}> is already connected."
         super().__init__(self.msg)
