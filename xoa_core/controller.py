@@ -7,7 +7,7 @@ from .core.executors.executor import SuiteExecutor
 
 from .core.messenger.handler import OutMessagesHandler
 from .core.messenger.misc import Message
-from .core.resources.manager import ResourcesManager
+from .core.resources.controller import ResourcesController
 from .core.resources.storage import PrecisionStorage
 from .core.test_suites.controller import PluginController
 from .core import const
@@ -29,8 +29,8 @@ class MainController:
 
         self.__publisher = OutMessagesHandler()
         resources_pipe = self.__publisher.get_pipe(const.PIPE_RESOURCES)
-        storage = PrecisionStorage(__storage_path)
-        self.__resources = ResourcesManager(resources_pipe, storage)
+        storage = PrecisionStorage(str(__storage_path))
+        self.__resources = ResourcesController(resources_pipe, storage)
 
         executor_pipe = self.__publisher.get_pipe(const.PIPE_EXECUTOR)
         self.__execution_manager = ExecutorsManager(executor_pipe, mono)

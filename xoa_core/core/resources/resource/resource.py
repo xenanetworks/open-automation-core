@@ -1,26 +1,21 @@
 from __future__ import annotations
+
 import asyncio
-from functools import partial, partialmethod
 import hashlib
-from typing import Any, Callable, Coroutine
 from dataclasses import asdict
+from typing import Any, Mapping, Protocol
 
 from xoa_driver.testers import GenericAnyTester
 
 from xoa_core.core.resources.datasets.external.credentials import Credentials
-from .dataset.tester import TesterModel
-from ..types import (
-    TesterID,
-    StorageResource,
-)
-
-from ..exceptions import (
-    InvalidTesterTypeError,
-    TesterCommunicationError,
-)
-from ..misc import get_tester_inst
 from xoa_core.core.utils.observer import SimpleObserver
-# TODO: need to handle disconnection if server drop the connection
+
+from . import const
+from . import (
+    exceptions,
+    misc,
+)
+from .models.tester import TesterModel, TesterID
 
 
 def _make_tester_id(host: str, port: int) -> TesterID:
@@ -28,30 +23,35 @@ def _make_tester_id(host: str, port: int) -> TesterID:
     return TesterID(hashlib.md5(val_bytes).hexdigest())
 
 
-CB = Callable[..., Coroutine[Any, None, None]]
-
-CONNECTED = 1
-DISCONNECTED = 2
-CHANGED = 3
+class EventCallback(Protocol):
+    async def __call__(self, dataset: dict[str, Any], event: str) -> None:
+        ...
 
 
 class Events:
+    __slots__ = ("__observer",)
+
     def __init__(self, observer: SimpleObserver) -> None:
         self.__observer = observer
 
-    def __register(self, event: int, func: CB) -> None:
-        self.__observer.subscribe(event, func)
+    def reset(self) -> None:
+        self.__observer.reset()
 
-    connected = partialmethod(__register, event=CONNECTED)
-    disconnected = partialmethod(__register, event=DISCONNECTED)
-    change = partialmethod(__register, event=CHANGED)
+    def on_connected(self, func: EventCallback) -> None:
+        self.__observer.subscribe(const.CONNECTED, func)
+
+    def on_disconnected(self, func: EventCallback) -> None:
+        self.__observer.subscribe(const.DISCONNECTED, func)
+
+    def on_changed(self, func: EventCallback) -> None:
+        self.__observer.subscribe(const.CHANGED, func)
 
 
 class Resource:
-    __slots__ = ("tester", "dataset", "observer")
+    __slots__ = ("tester", "dataset", "__observer")
 
-    def __init__(self, credentials: Credentials, *, name: str | None = None) -> None:
-        self.observer = SimpleObserver()
+    def __init__(self, credentials: Credentials, *, name: str | None = None, keep_disconnected: bool | None = None) -> None:
+        self.__observer: SimpleObserver[str] = SimpleObserver(pass_event=True)
         self.dataset = TesterModel(
             id=_make_tester_id(credentials.host, credentials.port),
             product=credentials.product,
@@ -60,18 +60,17 @@ class Resource:
             password=credentials.password,
             name=name or " - "
         )
+        if keep_disconnected is not None:
+            self.dataset.keep_disconnected = keep_disconnected
         self.tester = self.__get_tester_inst()
-        # self.observer.subscribe(CONNECTED, )
-        # self.observer.subscribe(DISCONNECTED, )
-        self.observer.subscribe(DISCONNECTED, self.__on_loose_connection)
-        # self.observer.subscribe(CHANGED, )
 
     def __get_tester_inst(self) -> GenericAnyTester:
-        if tester_ := get_tester_inst(self.dataset):
+        if tester_ := misc.get_tester_inst(self.dataset):
             return tester_
-        raise InvalidTesterTypeError(self.dataset)
+        raise exceptions.InvalidTesterTypeError(self.dataset)
 
-    async def __on_loose_connection(self) -> None:
+    async def __on_tester_loose_connection(self, _) -> None:
+        self.__observer.emit(const.DISCONNECTED, self.as_dict)
         if self.keep_disconnected:
             return None
         for retry in range(5):
@@ -82,29 +81,42 @@ class Resource:
                 continue
             else:
                 return None
-        self.keep_disconnected = True
+        self.dataset.keep_disconnected = True
 
-    async def connect(self) -> bool:
+    def __on_data_changed(self) -> None:
+        self.__observer.emit(const.CHANGED, self.as_dict)
+
+    async def connect(self) -> None:
         if self.tester.session.is_online:
-            return False
+            raise exceptions.IsConnectedError(self.id)
+        self.dataset.keep_disconnected = False
         try:
             await self.tester
         except Exception as e:
-            raise TesterCommunicationError(self.dataset, e) from None
+            raise exceptions.TesterCommunicationError(self.dataset, e) from None
         else:
-            self.observer.emit(CONNECTED)
-            await self.dataset.sync(self.tester, partial(self.observer.emit, CHANGED))
-            return True
+            # IMPORTANT: To keep order of next functions call
+            # 1 - sync which can emit CHANGED event
+            # 2 - Emit CONNECTED
+            # 3 - Subscribe on tester disconnected
+            await self.dataset.sync(self.tester, self.__on_data_changed)
+            self.__observer.emit(const.CONNECTED, self.as_dict)
+            self.tester.on_disconnected(self.__on_tester_loose_connection)
 
-    async def disconnect(self) -> bool:
-        if self.tester.session.is_online:
-            await self.tester.session.logoff()
-            self.tester = self.__get_tester_inst()
-            return True
-        return False
+    async def disconnect(self) -> None:
+        if not self.tester.session.is_online:
+            raise exceptions.IsDisconnectedError(self.id)
+        self.dataset.keep_disconnected = True
+        await self.tester.session.logoff()
+        self.tester = self.__get_tester_inst()
 
-    async def configure(self) -> None:
+    async def configure(self, config: dict[str, Any]) -> None:
         raise NotImplementedError()
+
+    def prepare_session(self, username: str, debug: bool = False) -> GenericAnyTester:
+        if tester_ := misc.get_tester_inst(self.credentials, username=username, debug=debug):
+            return tester_
+        raise exceptions.InvalidTesterTypeError(self.dataset)
 
     @property
     def id(self) -> TesterID:
@@ -114,12 +126,8 @@ class Resource:
     def keep_disconnected(self) -> bool:
         return self.dataset.keep_disconnected
 
-    @keep_disconnected.setter
-    def keep_disconnected(self, val: bool) -> None:
-        self.dataset.keep_disconnected = val
-
     @property
-    def store_data(self) -> StorageResource:
+    def store_data(self) -> Mapping[str, Any]:
         return {
             "id": self.dataset.id,
             "product": self.dataset.product,
@@ -139,5 +147,5 @@ class Resource:
         return asdict(self.dataset)
 
     @property
-    def call_on(self) -> Events:
-        return Events(self.observer)
+    def events(self) -> Events:
+        return Events(self.__observer)

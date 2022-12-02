@@ -1,16 +1,13 @@
 from __future__ import annotations
+
 import asyncio
-from pathlib import Path
 import shelve
 from functools import partial
-from typing import Protocol, TypeVar
-from .types import TesterID, StorageResource
+from typing import TypeVar
 
+from .types import StorageResource, TesterID
 
-class Resource(Protocol):
-    @property
-    def store_data(self) -> StorageResource:
-        ...
+__all__ = ("PrecisionStorage",)
 
 
 class Methods:
@@ -43,10 +40,10 @@ T = TypeVar("T")
 class PrecisionStorage:
     __slots__ = ("_lock", "_loop", "__open",)
 
-    def __init__(self, storage_path: Path) -> None:
+    def __init__(self, storage_path: str) -> None:
         self._lock = asyncio.Lock()
         self._loop = asyncio.get_event_loop()
-        self.__open = partial(shelve.open, str(storage_path))
+        self.__open = partial(shelve.open, storage_path)
 
     async def __run(self, func: partial[T]) -> T:
         async with self._lock:
@@ -60,8 +57,8 @@ class PrecisionStorage:
         method = partial(Methods.is_exist, self.__open, t_id)
         return await self.__run(method)
 
-    async def save(self, resource: Resource) -> None:
-        method = partial(Methods.save, self.__open, resource.store_data)
+    async def save(self, params: StorageResource) -> None:
+        method = partial(Methods.save, self.__open, params)
         return await self.__run(method)
 
     async def delete(self, t_id: TesterID) -> None:

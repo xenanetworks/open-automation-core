@@ -12,7 +12,7 @@ from xoa_driver import ports
 from xoa_driver import enums
 from xoa_driver import utils
 
-from xoa_core.core.utils import decorators
+from xoa_core.core.resources.resource.models import __decorator
 
 P = TypeVar("P", bound="PortModel")
 
@@ -69,10 +69,10 @@ class PortModel:
             traffic_state=getattr(port.info, "traffic_state", None),
             **await _prepare_values(port),
         )
-        port.on_reserved_by_change(decorators.post_notify(notifier)(inst.on_evt_reserved_by))
+        port.on_reserved_by_change(__decorator.post_notify(notifier)(inst.on_evt_reserved_by))
         if on_traffic_change := getattr(port, 'on_traffic_change', None):
-            on_traffic_change(decorators.post_notify(notifier)(inst.on_evt_traffic_state))
-        port.on_receive_sync_change(decorators.post_notify(notifier)(inst.on_evt_sync_status))
+            on_traffic_change(__decorator.post_notify(notifier)(inst.on_evt_traffic_state))
+        port.on_receive_sync_change(__decorator.post_notify(notifier)(inst.on_evt_sync_status))
         return inst
 
 

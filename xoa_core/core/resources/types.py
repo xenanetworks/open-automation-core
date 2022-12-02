@@ -1,17 +1,13 @@
 from __future__ import annotations
-from typing import TypedDict, NewType, Protocol
+from typing import TypedDict
 from pydantic import SecretStr
 from .datasets.enums import EProductType
+from .resource.models.tester import TesterID
 
-
-TesterID = NewType("TesterID", str)
-
-
-class IProps(Protocol):
-    product: EProductType
-    host: str
-    port: int
-    password: SecretStr
+__all__ = (
+    "TesterID",
+    "StorageResource",
+)
 
 
 class StorageResource(TypedDict):

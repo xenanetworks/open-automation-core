@@ -1,18 +1,30 @@
 from __future__ import annotations
+
 import asyncio
+from dataclasses import (
+    dataclass,
+    field,
+)
 from typing import (
     TYPE_CHECKING,
     Callable,
+    NewType,
 )
+
 from pydantic import SecretStr
-from dataclasses import dataclass, field
+
 if TYPE_CHECKING:
     from xoa_driver import testers
+
 from xoa_driver import utils
-from xoa_core.core.utils import decorators
+
 from xoa_core.core.resources.datasets import enums
-from xoa_core.core.resources.types import TesterID
+from xoa_core.core.resources.resource.models import __decorator as decorator
+
 from .module import ModuleModel
+
+
+TesterID = NewType("TesterID", str)
 
 
 @dataclass
@@ -58,5 +70,5 @@ class TesterModel:
             ])
         )
 
-        tester.on_reserved_by_change(decorators.post_notify(notifier)(self.on_evt_reserved_by))
-        tester.on_disconnected(decorators.post_notify(notifier)(self.on_evt_disconnected))
+        tester.on_reserved_by_change(decorator.post_notify(notifier)(self.on_evt_reserved_by))
+        tester.on_disconnected(self.on_evt_disconnected)

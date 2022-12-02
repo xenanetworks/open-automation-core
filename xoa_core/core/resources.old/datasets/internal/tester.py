@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from xoa_driver import testers
 from xoa_driver import utils
 from xoa_core.core import const
-from xoa_core.core.utils import decorators
+from xoa_core.core.resources.resource.models import __decorator
 from xoa_core.core.resources.datasets import enums
 from .module import ModuleModel
 
@@ -73,6 +73,6 @@ class TesterModel:
                 ])
             )
         )
-        tester.on_reserved_by_change(decorators.post_notify(notifier)(inst.on_evt_reserved_by))
-        tester.on_disconnected(decorators.post_notify(notifier)(inst.on_evt_disconnected))
+        tester.on_reserved_by_change(__decorator.post_notify(notifier)(inst.on_evt_reserved_by))
+        tester.on_disconnected(__decorator.post_notify(notifier)(inst.on_evt_disconnected))
         return inst

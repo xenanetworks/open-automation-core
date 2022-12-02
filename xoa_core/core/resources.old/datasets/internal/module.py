@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from xoa_driver import enums
 from xoa_driver import modules
 
-from xoa_core.core.utils import decorators
+from xoa_core.core.resources.resource.models import __decorator
 from .port import PortModel
 
 
@@ -48,7 +48,7 @@ class ModuleModel:
                 ])
             )
         )
-        module.on_reserved_by_change(decorators.post_notify(notifier)(inst.on_evt_reserved_by))
+        module.on_reserved_by_change(__decorator.post_notify(notifier)(inst.on_evt_reserved_by))
         return inst
 
 
