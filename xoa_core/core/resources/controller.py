@@ -13,9 +13,9 @@ from .resource import Resource
 from .storage import PrecisionStorage
 from .types import TesterID, StorageResource
 
-# TODO:  organize propper imports
+# TODO:  organize proper imports
 # TODO:  save keep_disconnected on failure to add tester at startup time
-# TODO:  save keep_disconnected after connection failed and all atempts to reconnect also was unsuccesful
+# TODO:  save keep_disconnected after connection failed and all attempts to reconnect also was unsuccessful
 
 
 class ResourcesController:
