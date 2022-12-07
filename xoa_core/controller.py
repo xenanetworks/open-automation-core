@@ -96,7 +96,7 @@ class MainController:
         await self.__resources.remove_tester(tester_id)
 
     async def connect_tester(self, tester_id: str) -> None:
-        """Establis connection to a disconnected tester.
+        """Establish a connection to a disconnected tester.
 
         :param tester_id: tester id
         :type tester_id: str

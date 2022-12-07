@@ -70,5 +70,4 @@ In the example bellow, we subscribe only to the statistic messages from the test
 
 .. literalinclude:: ../code_example/main.py
     :language: python
-    :linenos:
-    :emphasize-lines: 25, 36
+    :emphasize-lines: 35, 52
