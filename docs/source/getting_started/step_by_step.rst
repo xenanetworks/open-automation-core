@@ -21,6 +21,10 @@ This section provides a step-by-step guide on how to use XOA Core to run XOA tes
 
   * `Step 5. Write Your Code in main.py`_
 
+* **If you want to run your old Valkyrie test suite config files**
+
+  * `Running Old Valkyrie Test Suite Configurations`_
+
 
 Step 1. Create Project Folder
 ------------------------------
@@ -41,9 +45,9 @@ Step 2. Create Necessary Files
 
 Create a ``main.py`` file inside the folder ``/my_xoa_project``.
 
-Then, on the same level as ``main.py``, create a folder ``/plugins`` for keeping your test suites.
+Then, on the same level as ``main.py``, create a folder ``/pluginlib`` for keeping your test suites.
 
-After that, create a ``__init__.py`` inside folder ``/plugins`` to make it into a `package <https://docs.python.org/3/tutorial/modules.html#packages>`_.
+After that, create a ``__init__.py`` inside folder ``/pluginlib`` to make it into a `package <https://docs.python.org/3/tutorial/modules.html#packages>`_.
 
 .. code-block::
     :caption: Create necessary files
@@ -51,7 +55,7 @@ After that, create a ``__init__.py`` inside folder ``/plugins`` to make it into 
     /my_xoa_project
         |
         |- main.py
-        |- /plugins
+        |- /pluginlib
             |- __init__.py
             |
 
@@ -67,7 +71,7 @@ Else, read :doc:`installation`.
 Step 4. Copy XOA Test Suite Plugin into Project Folder
 -------------------------------------------------------
 
-Copy a test suite plugin, e.g. ``/plugin2544`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project/plugins``.
+Copy a test suite plugin, e.g. ``/plugin2544`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project/pluginlib``.
 
 Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my_xoa_project`` for easy access.
 
@@ -78,7 +82,7 @@ Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my
         |
         |- main.py
         |- my2544_data.json
-        |- /plugins
+        |- /pluginlib
             |- __init__.py
             |- /plugin2544
 
@@ -88,7 +92,7 @@ Step 5. Write Your Code in ``main.py``
 
 The code example in ``main.py`` below demonstrates a very basic flow. 
 
-.. literalinclude:: ../code_example/main.py
+.. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
 
 
@@ -108,3 +112,24 @@ To execute the program, simply do:
         :caption: Run test suite in macOS/Linux.
 
         [my_xoa_project]$ python3 main.py
+
+
+Running Old Valkyrie Test Suite Configurations
+-------------------------------------------------
+
+If you want to run your old Valkyrie test suite configuration files, you should use ``xoa-convert`` to convert Valkyrie test suite configuration files into XOA's, as shown in the illustration below.
+
+.. image:: ../_static/xoa_converter_illustration.png
+    :width: 600
+    :alt: Illustration of Valkyrie-to-XOA conversion flow
+
+
+.. seealso::
+
+  Read more about `XOA Config Convert <https://docs.xenanetworks.com/projects/xoa-config-converter>`_
+
+The code example below shows how to convert your Valkyrie config file into XOA's and run the test with XOA Core.
+
+.. literalinclude:: ../code_example/running_valkyrie_config.py
+    :language: python
+    :emphasize-lines: 9-10, 15-16, 51-64
