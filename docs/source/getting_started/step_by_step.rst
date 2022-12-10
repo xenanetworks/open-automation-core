@@ -87,8 +87,8 @@ Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my
             |- /plugin2544
 
 
-Step 5. Write Your Code in ``main.py``
---------------------------------------
+Step 5. Convert Test Config from Valkyrie to XOA
+-------------------------------------------------
 
 The code example in ``main.py`` below demonstrates a very basic flow. 
 
