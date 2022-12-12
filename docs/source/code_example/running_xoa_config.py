@@ -8,7 +8,7 @@ import asyncio
 import json
 
 BASE_PATH = Path.cwd()
-PLUGINS_PATH = BASE_PATH / "plugins"
+PLUGINS_PATH = BASE_PATH / "pluginlib"
 TEST_CONFIG_PATH = BASE_PATH / "my2544_data.json"
 
 

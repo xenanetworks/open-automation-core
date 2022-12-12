@@ -31,8 +31,7 @@ A test suite plug-in must have the structure below:
 ``meta.yml`` has a fixed structure as shown below, and is used as the entry point for the plug-in loading system. If the test suite folder doesn't contain this file, it will not be loaded by XOA Core.
 
 .. code-block:: yaml
-    :caption: ``meta.yml`` example
-    :linenos:
+    :caption: ``meta.yml`` example    
 
     name: "RFC-2544[Frame Loss]" # Plugin name
     version: "1.0" # Plugin current version

@@ -8,8 +8,8 @@ Message Subscription
 
 XOA Core provide two types of messages for you to subscribe to:
 
- * ``Subsystem Type``
- * ``Test Execution Type``
+* ``Subsystem Type``
+* ``Test Execution Type``
 
 Subsystem Type Message
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +68,6 @@ In the example bellow, we subscribe only to the statistic messages from the test
     
     ``Line no.36``: Subscribe to statistic messages.
 
-.. literalinclude:: ../code_example/main.py
+.. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
-    :linenos:
-    :emphasize-lines: 25, 36
+    :emphasize-lines: 35, 52
