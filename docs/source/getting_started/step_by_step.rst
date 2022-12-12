@@ -132,4 +132,4 @@ The code example below shows how to convert your Valkyrie config file into XOA's
 
 .. literalinclude:: ../code_example/running_valkyrie_config.py
     :language: python
-    :emphasize-lines: 9-10, 15-16, 51-64
+    :emphasize-lines: 9-10, 23-40
