@@ -8,40 +8,45 @@ from dataclasses import (
 from typing import (
     TYPE_CHECKING,
     Callable,
-    NewType,
+    Tuple,
 )
 
-from pydantic import SecretStr
-
+from pydantic import (
+    BaseModel,
+    SecretStr,
+)
 if TYPE_CHECKING:
     from xoa_driver import testers
 
 from xoa_driver import utils
 
-from xoa_core.core.resources.datasets import enums
-from xoa_core.core.resources.resource.models import __decorator as decorator
-
-from .module import ModuleModel
-
-
-TesterID = NewType("TesterID", str)
+from .__decorator import post_notify
+from .module import (
+    ModuleModel,
+    ModuleInfoModel,
+)
+from .types import (
+    EProductType,
+    TesterID,
+)
 
 
 @dataclass
 class TesterModel:
     id: TesterID
-    product: enums.EProductType
+    product: EProductType
     host: str
     port: int
     password: SecretStr
+    index: int | None = None  # Will be populated in pool
     name: str = " - "
     reserved_by: str = ""
     is_connected: bool = False
     modules: tuple[ModuleModel, ...] = field(default_factory=tuple)
     keep_disconnected: bool = False
-    max_name_len: int = 0  # used by UI validation (Tester Name) & config validation
-    max_comment_len: int = 0  # used by UI validation (Tester Description) & config validation
-    max_password_len: int = 0  # used by UI validation (Tester Password) & config validation
+    max_name_len: int = 0
+    max_comment_len: int = 0
+    max_password_len: int = 0
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -65,10 +70,27 @@ class TesterModel:
         self.max_password_len = cpb.max_name_len
         self.modules = tuple(
             await asyncio.gather(*[
-                ModuleModel.from_module(module, notifier)
+                ModuleModel.from_module(self.id, module, notifier)
                 for module in tester.modules
             ])
         )
 
-        tester.on_reserved_by_change(decorator.post_notify(notifier)(self.on_evt_reserved_by))
+        tester.on_reserved_by_change(post_notify(notifier)(self.on_evt_reserved_by))
         tester.on_disconnected(self.on_evt_disconnected)
+
+
+class TesterInfoModel(BaseModel):
+    id: TesterID
+    index: int
+    product: EProductType
+    host: str
+    port: int
+    password: SecretStr
+    name: str
+    reserved_by: str
+    is_connected: bool
+    modules: Tuple[ModuleInfoModel, ...] = tuple()
+    keep_disconnected: bool
+    max_name_len: int
+    max_comment_len: int
+    max_password_len: int

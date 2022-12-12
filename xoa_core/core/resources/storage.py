@@ -4,8 +4,12 @@ import asyncio
 import shelve
 from functools import partial
 from typing import TypeVar
-
-from .types import StorageResource, TesterID
+from typing import TypedDict
+from pydantic import SecretStr
+from .types import (
+    TesterID,
+    EProductType
+)
 
 __all__ = ("PrecisionStorage",)
 
@@ -29,12 +33,22 @@ class Methods:
             del db[id]
 
     @staticmethod
-    def is_exist(open_db: partial[shelve.Shelf], id: TesterID) -> bool:
+    def is_registered(open_db: partial[shelve.Shelf], id: TesterID) -> bool:
         with open_db() as db:
             return id in db
 
 
 T = TypeVar("T")
+
+
+class StorageResource(TypedDict):
+    id: TesterID
+    product: EProductType
+    host: str
+    port: int
+    password: SecretStr
+    name: str
+    keep_disconnected: bool
 
 
 class PrecisionStorage:
@@ -54,7 +68,7 @@ class PrecisionStorage:
         return await self.__run(method)
 
     async def is_registered(self, t_id: TesterID) -> bool:
-        method = partial(Methods.is_exist, self.__open, t_id)
+        method = partial(Methods.is_registered, self.__open, t_id)
         return await self.__run(method)
 
     async def save(self, params: StorageResource) -> None:

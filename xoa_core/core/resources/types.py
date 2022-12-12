@@ -1,20 +1,20 @@
 from __future__ import annotations
-from typing import TypedDict
-from pydantic import SecretStr
-from .datasets.enums import EProductType
-from .resource.models.tester import TesterID
+
+from .resource.misc import Credentials
+from .resource.models.tester import TesterInfoModel
+from .resource.models.module import ModuleInfoModel
+from .resource.models.port import PortInfoModel
+
+from .resource.models.types import (
+    EProductType,
+    TesterID,
+)
 
 __all__ = (
     "TesterID",
-    "StorageResource",
+    "EProductType",
+    "Credentials",
+    "TesterInfoModel",
+    "ModuleInfoModel",
+    "PortInfoModel",
 )
-
-
-class StorageResource(TypedDict):
-    id: str
-    product: EProductType
-    host: str
-    port: int
-    password: SecretStr
-    name: str
-    keep_disconnected: bool

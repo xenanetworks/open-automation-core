@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Iterable
-
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+)
 if TYPE_CHECKING:
     from xoa_driver import testers
     from xoa_core.core.generic_types import TMesagesPipe
 
-from .datasets.external.credentials import Credentials
-from .datasets.external.tester import TesterExternalModel
-from .resource.pool import ResourcesPool
-from .resource import Resource
+from .pool import ResourcesPool
+from .resource.facade import Resource
+from .resource.misc import Credentials
 from .storage import PrecisionStorage
-from .types import TesterID, StorageResource
-
-# TODO:  organize proper imports
-# TODO:  save keep_disconnected on failure to add tester at startup time
-# TODO:  save keep_disconnected after connection failed and all attempts to reconnect also was unsuccessful
+from .types import TesterID, TesterInfoModel
 
 
 class ResourcesController:
@@ -34,39 +32,46 @@ class ResourcesController:
                 keep_disconnected=credential.get("keep_disconnected", False)
             )
             await self._pool.add(resource)
-        await self._pool.all.connect()
+        failed = await self._pool.all.connect()
+        for resource in failed:
+            resource.dataset.keep_disconnected = True
+            await self.__store.save(resource.store_data)
 
-    async def add_tester(self, credentials: Credentials) -> bool:
+    async def add_tester(self, credentials: Credentials) -> TesterID:
         new_resource = Resource(credentials)  # InvalidTesterTypeError
         if await self.__store.is_registered(new_resource.id):
-            return False
+            return new_resource.id
         await new_resource.connect()  # TesterCommunicationError
-        await self.__store.save(StorageResource(**new_resource.as_dict))
+        await self.__store.save(new_resource.store_data)
         await self._pool.add(new_resource)
-        return True
+        return new_resource.id
 
     async def remove_tester(self, id: TesterID) -> None:
         resource = await self._pool.extract(id)
-        await resource.disconnect()
         await self.__store.delete(resource.id)
+        await resource.disconnect()
 
     async def configure_tester(self, id: TesterID, config: dict[str, Any]) -> None:
         """ User Apply Changes """
         resource = self._pool.get(id)
         await resource.configure(config)
 
-    async def get_all_testers(self) -> dict[TesterID, TesterExternalModel]:
-        return self._pool.all.get_dict()
+    async def list_testers_info(self) -> list[TesterInfoModel]:
+        return list(self._pool.all.get_items())
+
+    async def get_tester_info(self, tester_id: TesterID) -> TesterInfoModel:
+        resource = self._pool.get(tester_id)
+        return resource.info()
 
     async def connect(self, id: TesterID) -> None:
         resource = self._pool.get(id)
-        await resource.connect()
-        await self.__store.save(StorageResource(**resource.as_dict))
+        await resource.connect()  # TesterCommunicationError, IsConnectedError
+        await self.__store.save(resource.store_data)
 
     async def disconnect(self, id: TesterID) -> None:
         resource = self._pool.get(id)
-        await resource.disconnect()
-        await self.__store.save(StorageResource(**resource.as_dict))
+        await resource.disconnect()  # IsDisconnectedError
+        await self.__store.save(resource.store_data)
 
     def get_testers_by_id(self, testers_ids: Iterable[TesterID], username: str, debug: bool = False) -> dict[str, "testers.GenericAnyTester"]:
         return {

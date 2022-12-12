@@ -1,24 +1,29 @@
 from __future__ import annotations
 
-from typing import (
-    Protocol,
-    Type,
-)
+import hashlib
+from typing import Type
 
-from pydantic import SecretStr
+from pydantic import (
+    BaseModel,
+    Field,
+    SecretStr,
+)
 from xoa_driver import testers
 
-from ..datasets.enums import EProductType
+from .models.types import (
+    EProductType,
+    TesterID,
+)
 
 
-class IProps(Protocol):
+class Credentials(BaseModel):
     product: EProductType
     host: str
-    port: int
-    password: SecretStr
+    port: int = Field(default=22606, gt=0, lt=65535)
+    password: SecretStr = SecretStr("xena")
 
 
-def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -> testers.GenericAnyTester | None:
+def get_tester_inst(props: Credentials, username: str = "xoa-manager", debug=False) -> testers.GenericAnyTester | None:
     tester_type: Type[testers.GenericAnyTester] | None = {
         EProductType.VALKYRIE: testers.L23Tester,
         EProductType.CHIMERA: testers.L23Tester,
@@ -33,3 +38,8 @@ def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -
         port=props.port,
         debug=debug,
     ) if tester_type else None
+
+
+def make_resource_id(host: str, port: int) -> TesterID:
+    val_bytes = f"{host}:{port}".encode("utf-8")
+    return TesterID(hashlib.md5(val_bytes).hexdigest())
