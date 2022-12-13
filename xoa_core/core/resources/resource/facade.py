@@ -85,9 +85,6 @@ class Resource:
     def __on_data_changed(self) -> None:
         self.__observer.emit(const.CHANGED, self.info())
 
-    def set_index(self, tester_index: int) -> None:
-        self.dataset.index = tester_index
-
     async def connect(self) -> None:
         if self.tester.session.is_online:
             raise exceptions.IsConnectedError(self.id)

@@ -38,7 +38,6 @@ class TesterModel:
     host: str
     port: int
     password: SecretStr
-    index: int | None = None  # Will be populated in pool
     name: str = " - "
     reserved_by: str = ""
     is_connected: bool = False
@@ -81,7 +80,6 @@ class TesterModel:
 
 class TesterInfoModel(BaseModel):
     id: TesterID
-    index: int
     product: EProductType
     host: str
     port: int
