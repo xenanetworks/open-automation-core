@@ -85,8 +85,6 @@ class ResourcesPool:
     def __optimize(self) -> None:
         """Realocate pool for keep low memory usage."""
         self.__resources = {**self.__resources}
-        for idx, item in enumerate(self.__resources.values()):
-            item.set_index(idx)
 
     async def __publish_message(self, dataset: TesterInfoModel, event: str) -> None:
         message = Msg(action=event, data=dataset)
