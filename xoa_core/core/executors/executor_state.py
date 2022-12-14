@@ -31,6 +31,10 @@ class ExecutorState:
         self.__sender_is_set = True
 
     @property
+    def current_state(self) -> str:
+        return self.__state.value
+
+    @property
     def is_stoped(self) -> bool:
         return self.__state is EState.STOPPED
 

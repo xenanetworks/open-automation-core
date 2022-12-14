@@ -8,6 +8,7 @@ from typing_extensions import Self
 from .core import const
 from .core.executors.executor import SuiteExecutor
 from .core.executors.manager import ExecutorsManager
+from .core.executors.executor_info import ExecutorInfo
 from .core.messenger.handler import OutMessagesHandler
 from .core.messenger.misc import Message
 from .core.resources.controller import ResourcesController
@@ -149,6 +150,25 @@ class MainController:
         executor.assign_plugin(plugin)
         return self.__execution_manager.run(executor)
 
+    def executions_info(self) -> list[ExecutorInfo]:
+        """
+        Get list of infos of currently executing tasks
+        :return: Executors info
+        :rtype: list[ExecutorInfo]
+        """
+        return self.__execution_manager.get_executors_info()
+
+    def execution_state(self, execution_id: str) -> str | None:
+        """
+        Get current state of the test execution
+
+        :param execution_id: test execution id
+        :type execution_id: str
+        :return: str | none
+        :rtype: str | None
+        """
+        return self.__execution_manager.get_state(execution_id)
+
     async def running_test_stop(self, execution_id: str) -> None:
         """Stop a test suite execution
 
@@ -157,7 +177,7 @@ class MainController:
         :return: none
         :rtype: None
         """
-        return await self.__execution_manager.stop(execution_id)
+        await self.__execution_manager.stop(execution_id)
 
     async def running_test_toggle_pause(self, execution_id: str) -> None:
         """Pause or continue execution of a test suite.
