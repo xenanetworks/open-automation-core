@@ -5,28 +5,24 @@ This section provides a step-by-step guide on how to use XOA Core to run XOA tes
 
 * **Setup your XOA test suite project**
 
-  * `Step 1. Create Project Folder`_
-  * `Step 2. Create Necessary Files`_
-  * `Step 3. Install XOA Core`_
+  * `1. Create Project Folder`_
+  * `2. Create Necessary Files`_
+  * `3. Install XOA Core`_
 
 * **Where should XOA test suite plug-ins be placed**
 
-  * `Step 4. Copy XOA Test Suite Plugin into Project Folder`_
+  * `4. Copy XOA Test Suite Plugin into Project Folder`_
 
-* **How to configure a XOA test suite**
+* **Run with XOA JSON Configuration**
 
-  * `Step 5. Write Your Code in main.py`_
-
-* **How to fetch the outgoing statistics data**
-
-  * `Step 5. Write Your Code in main.py`_
+  * `5. Run XOA Test Configuration`_
 
 * **If you want to run your old Valkyrie test suite config files**
 
-  * `Running Old Valkyrie Test Suite Configurations`_
+  * `6. Run Old Valkyrie Test Suite Configuration`_
 
 
-Step 1. Create Project Folder
+1. Create Project Folder
 ------------------------------
 
 First, create a folder on your computer at a location you want. This folder will be the place where you keep your XOA test suites and a simple Python program to load and run them using XOA Core framework.
@@ -40,7 +36,7 @@ Let's create a folder called ``/my_xoa_project``
         |
 
 
-Step 2. Create Necessary Files
+2. Create Necessary Files
 --------------------------------
 
 Create a ``main.py`` file inside the folder ``/my_xoa_project``.
@@ -60,7 +56,7 @@ After that, create a ``__init__.py`` inside folder ``/pluginlib`` to make it int
             |
 
 
-Step 3. Install XOA Core
+3. Install XOA Core
 -------------------------
 
 If you have already installed XOA Core in your system, either to your global namespace or in a virtual environment, you can skip this step.
@@ -68,7 +64,7 @@ If you have already installed XOA Core in your system, either to your global nam
 Else, read :doc:`installation`.
 
 
-Step 4. Copy XOA Test Suite Plugin into Project Folder
+4. Copy XOA Test Suite Plugin into Project Folder
 -------------------------------------------------------
 
 Copy a test suite plugin, e.g. ``/plugin2544`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project/pluginlib``.
@@ -87,13 +83,16 @@ Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my
             |- /plugin2544
 
 
-Step 5. Convert Test Config from Valkyrie to XOA
+5. Run XOA Test Configuration
 -------------------------------------------------
+
+If you already have a XOA test configuration file (.json), you can run it directly with XOA Core.
 
 The code example in ``main.py`` below demonstrates a very basic flow. 
 
-.. literalinclude:: ../code_example/running_xoa_config.py
+.. literalinclude:: ../code_example/run_xoa_config.py
     :language: python
+    :emphasize-lines: 37-49
 
 
 To execute the program, simply do:
@@ -114,22 +113,36 @@ To execute the program, simply do:
         [my_xoa_project]$ python3 main.py
 
 
-Running Old Valkyrie Test Suite Configurations
+6. Run Old Valkyrie Test Suite Configuration
 -------------------------------------------------
 
-If you want to run your old Valkyrie test suite configuration files, you should use ``xoa-convert`` to convert Valkyrie test suite configuration files into XOA's, as shown in the illustration below.
+If you want to run your old Valkyrie test suite configuration files, you should use ``xoa-convert`` to convert Valkyrie test suite configuration files into XOA's, as illustrated below.
 
 .. image:: ../_static/xoa_converter_illustration.png
     :width: 600
     :alt: Illustration of Valkyrie-to-XOA conversion flow
 
-
 .. seealso::
 
   Read more about `XOA Config Convert <https://docs.xenanetworks.com/projects/xoa-config-converter>`_
 
+
+Copy your Valkyrie test configuration file, e.g. ``my2544_data.v2544`` into ``/my_xoa_project`` for easy access.
+
+.. code-block::
+    :caption: Copy test suite plugin into project
+
+    /my_xoa_project
+        |
+        |- main.py
+        |- my2544_data.v2544
+        |- /pluginlib
+            |- __init__.py
+            |- /plugin2544
+
+
 The code example below shows how to convert your Valkyrie config file into XOA's and run the test with XOA Core.
 
-.. literalinclude:: ../code_example/running_valkyrie_config.py
+.. literalinclude:: ../code_example/run_valkyrie_config.py
     :language: python
-    :emphasize-lines: 9-10, 23-40
+    :emphasize-lines: 9-10, 37-62
