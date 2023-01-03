@@ -66,4 +66,3 @@ class PluginController:
             (plugin.meta.name, plugin)
             for plugin in self.__read_plugins()
         )
-
