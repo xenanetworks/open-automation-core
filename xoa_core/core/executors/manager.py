@@ -1,7 +1,8 @@
+from __future__ import annotations
 import typing
 from xoa_core.core.utils import observer
 from xoa_core.core import exceptions
-
+from .executor_info import ExecutorInfo
 from .executor import SuiteExecutor
 from ._events import Event
 
@@ -35,6 +36,16 @@ class ExecutorsManager:
         executor.run(self.__observer)
         self.__msg_pipe.transmit(f"Test Suite Started: {executor.id}")
         return executor.id
+
+    def get_executors_info(self) -> list[ExecutorInfo]:
+        return [
+            ex.get_info()
+            for ex in self.__executors.values()
+        ]
+
+    def get_state(self, exec_id: str) -> str | None:
+        if ex := self.__executors.get(exec_id):
+            return ex.state.current_state
 
     async def stop(self, exec_id: str) -> None:
         if ex := self.__executors.get(exec_id):

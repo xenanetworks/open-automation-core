@@ -10,6 +10,7 @@ from xoa_core.core.generic_types import (
 if typing.TYPE_CHECKING:
     from xoa_core.types import PluginAbstract
 
+from .executor_info import ExecutorInfo
 from . import exceptions
 from ._events import Event
 from .executor_state import ExecutorState
@@ -45,6 +46,13 @@ class SuiteExecutor:
                 return None
             self.__observer.emit(Event.ERROR, task.get_name(), e)
             raise e
+
+    def get_info(self) -> ExecutorInfo:
+        return ExecutorInfo(
+            id=self.__id,
+            suite_name=self.suite_name,
+            state=self.state.current_state,
+        )
 
     def assign_pipe(self, pipe: "TMesagesPipe") -> None:
         self.__msg_pipe = pipe

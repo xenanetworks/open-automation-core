@@ -1,54 +1,60 @@
 from __future__ import annotations
 
-from typing import (
-    Callable,
-    Type,
-    Any,
-)
-from typing_extensions import Self
 from dataclasses import (
     dataclass,
-    field
+    field,
 )
-from xoa_driver import ports
-from xoa_driver import enums
-from xoa_driver import utils
-
-from xoa_core.core.resources.resource.models import __decorator as decorator
+from typing import (
+    Any,
+    Callable,
+    Optional,
+    Tuple,
+    Type,
+)
+from pydantic import BaseModel
+from typing_extensions import Self
+from xoa_driver import (
+    enums,
+    ports,
+    utils,
+)
+from .types import ModuleID, PortID
+from .__decorator import post_notify
 
 
 @dataclass
 class PortModel:
-    id: int
+    id: PortID
+    index: int
     model: str
     reserved_by: str
     sync_status: bool | None = None
     traffic_state: enums.TrafficOnOff | None = None
-    max_speed: int | None = None  # max L1 Mbps, used by UI validation (Rate Cap column) & config validation
-    max_speed_reduction: int | None = None  # max ppm value of speed reduction, used by UI validation (Speed Reduct column) & config validation
-    min_interframe_gap: int | None = None  # used by UI validation (IFG column) & config validation
-    max_interframe_gap: int | None = None  # used by UI validation (IFG column) & config validation
-    max_streams_per_port: int | None = None  # used for config validation
-    packet_limit: int | None = None  # used by UI validation (Time duration of a test iteration) & config validation
-    min_packet_length: int | None = None  # used by UI validation & config validation
-    max_packet_length: int | None = None  # used by UI validation & config validation
-    max_header_length: int | None = None  # used by UI validation & config validation
-    max_protocol_segments: int | None = None  # used by UI validation & config validation
-    max_repeat: int | None = None  # max packet repeats for modifier, used by UI validation & config validation
-    can_set_autoneg: bool = False  # used by UI validation (AN column) & config validation
-    can_tcp_checksum: bool = False  # whether supports TCP segment with valid checksum & config validation
-    can_udp_checksum: bool = False  # whether supports UDP segment with valid checksum & config validation
-    can_micro_tpld: bool = False  # whether supports micro TPLD, used for config validation
-    can_mdi_mdix: bool = False  # whether supports MDI/MDIX (MDI/MDIX column), used by UI validation & config validation
-    can_sync_traffic_start: bool = False  # whether supports synchronized traffic start, used for config validation
-    can_fec: bool = False  # used by UI validation (FEC column), used by UI validation & config validation
-    can_anlt: bool = False  # used by UI validation (AN column), & config validation
+    max_speed: int | None = None
+    max_speed_reduction: int | None = None
+    min_interframe_gap: int | None = None
+    max_interframe_gap: int | None = None
+    max_streams_per_port: int | None = None
+    packet_limit: int | None = None
+    min_packet_length: int | None = None
+    max_packet_length: int | None = None
+    max_header_length: int | None = None
+    max_protocol_segments: int | None = None
+    max_repeat: int | None = None
+    can_set_autoneg: bool = False
+    can_tcp_checksum: bool = False
+    can_udp_checksum: bool = False
+    can_micro_tpld: bool = False
+    can_mdi_mdix: bool = False
+    can_sync_traffic_start: bool = False
+    can_fec: bool = False
+    can_anlt: bool = False
     is_chimera: bool = False
-    can_brr: bool = False  # used by UI validation (BRR Column) & config validation
-    speed_modes_supported: tuple["enums.PortSpeedMode", ...] = field(default_factory=tuple)  # corresponds to P_SPEEDS_SUPPORTED, and should be a list of enums.PortSpeedMode. This will be used by UI to render the items in the dropdown list for Speed selection.  # noqa: E501
-    speed_mode_current: enums.PortSpeedMode | None = None  # corresponds to P_SPEEDSELECTION, a single value of enums.PortSpeedMode type, showing the current speed mode.
-    speed_current: int | None = None  # corresponds to P_SPEED, a value showing the expected port speed in Mbps.
-    speed_reduction: int | None = None  # corresponds to P_SPEEDREDUCTION, a value showing the speed reduction in ppm.
+    can_brr: bool = False
+    speed_modes_supported: tuple["enums.PortSpeedMode", ...] = field(default_factory=tuple)
+    speed_mode_current: enums.PortSpeedMode | None = None
+    speed_current: int | None = None
+    speed_reduction: int | None = None
 
     async def on_evt_traffic_state(self, _, value) -> None:
         self.traffic_state = enums.TrafficOnOff(value.on_off)
@@ -60,19 +66,20 @@ class PortModel:
         self.reserved_by = value.username
 
     @classmethod
-    async def from_port(cls: Type[Self], port: "ports.GenericAnyPort", notifier: Callable) -> Self:
+    async def from_port(cls: Type[Self], module_id: ModuleID, port: "ports.GenericAnyPort", notifier: Callable) -> Self:
         inst = cls(
-            id=port.kind.port_id,
+            id=PortID(f"{module_id}-{port.kind.port_id}"),
+            index=port.kind.port_id,
             model=port.info.interface,
             reserved_by=port.info.reserved_by,
             sync_status=getattr(port.info, "sync_status", None),
             traffic_state=getattr(port.info, "traffic_state", None),
             **await _prepare_values(port),
         )
-        port.on_reserved_by_change(decorator.post_notify(notifier)(inst.on_evt_reserved_by))
+        port.on_reserved_by_change(post_notify(notifier)(inst.on_evt_reserved_by))
         if on_traffic_change := getattr(port, 'on_traffic_change', None):
-            on_traffic_change(decorator.post_notify(notifier)(inst.on_evt_traffic_state))
-        port.on_receive_sync_change(decorator.post_notify(notifier)(inst.on_evt_sync_status))
+            on_traffic_change(post_notify(notifier)(inst.on_evt_traffic_state))
+        port.on_receive_sync_change(post_notify(notifier)(inst.on_evt_sync_status))
         return inst
 
 
@@ -110,7 +117,41 @@ async def _prepare_values(port: "ports.GenericAnyPort") -> dict[str, Any]:
         p_vals["can_mdi_mdix"] = bool(cpb.can_mdi_mdix)
         p_vals["can_sync_traffic_start"] = bool(cpb.can_sync_traffic_start)
         p_vals["can_fec"] = bool(cpb.can_fec)
-        p_vals["can_anlt"] = cpb.can_set_link_train and cpb.can_auto_neg_base_r
+        p_vals["can_anlt"] = bool(cpb.can_set_link_train and cpb.can_auto_neg_base_r)
         p_vals["is_chimera"] = bool(cpb.is_chimera)
         p_vals["can_brr"] = getattr(port, "is_brr_mode_supported", False)
     return p_vals
+
+
+class PortInfoModel(BaseModel):
+    id: PortID
+    index: int
+    model: str
+    reserved_by: str
+    sync_status: Optional[bool]
+    traffic_state: Optional[enums.TrafficOnOff]
+    max_speed: Optional[int]
+    max_speed_reduction: Optional[int]
+    min_interframe_gap: Optional[int]
+    max_interframe_gap: Optional[int]
+    max_streams_per_port: Optional[int]
+    packet_limit: Optional[int]
+    min_packet_length: Optional[int]
+    max_packet_length: Optional[int]
+    max_header_length: Optional[int]
+    max_protocol_segments: Optional[int]
+    max_repeat: Optional[int]
+    can_set_autoneg: bool
+    can_tcp_checksum: bool
+    can_udp_checksum: bool
+    can_micro_tpld: bool
+    can_mdi_mdix: bool
+    can_sync_traffic_start: bool
+    can_fec: bool
+    can_anlt: bool
+    is_chimera: bool
+    can_brr: bool
+    speed_modes_supported: Tuple["enums.PortSpeedMode", ...]
+    speed_mode_current: Optional[enums.PortSpeedMode]
+    speed_current: Optional[int]
+    speed_reduction: Optional[int]

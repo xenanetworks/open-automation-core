@@ -1,15 +1,33 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Protocol, ValuesView, Generator
+from typing import (
+    Any,
+    Callable,
+    Generator,
+)
 
 from pydantic import BaseModel
 
-from . import const
-from ..datasets.external.tester import TesterExternalModel
-from . import Resource
-from .models.tester import TesterID
-from .exceptions import UnknownResourceError
+from .resource import const
+from .resource.facade import Resource
+from .resource.models.types import TesterID
+from .resource.models.tester import TesterInfoModel
+from .resource.exceptions import UnknownResourceError
+
+
+""""
+Messages Order
+CONNECTED - Ignored message
+
+1. ADDED - add tester to the pool send message to the user
+    - CONNECTED - If know tester get connected send msg to user
+    - CHANGED - If cnown tester data was changet sending msg to user
+    - DISCONNECTED - If know tester get disconnected send msg to user
+2. REMOVED - Extract tester and send message to the user
+
+DISCONNECTED - Ignored message
+"""
 
 
 class MultiResActions:
@@ -20,56 +38,41 @@ class MultiResActions:
 
     __slots__ = ("resources",)
 
-    def __init__(self, resources: ValuesView[Resource]) -> None:
+    def __init__(self, resources: dict[TesterID, Resource]) -> None:
         self.resources = resources
 
-    async def connect(self) -> None:
-        tasks = [r.connect() for r in self.resources if not r.keep_disconnected]
-        await asyncio.gather(*tasks, return_exceptions=True)
-        # for err in filter(lambda v: isinstance(v, Exception), result):
-        #     ...
+    async def connect(self) -> Generator[Resource, None, None]:
+        prefiltered = (r for r in self.resources.values() if not r.keep_disconnected)
+        result = await asyncio.gather(
+            *[r.connect() for r in prefiltered],
+            return_exceptions=True
+        )
+        return (
+            resource
+            for result, resource in zip(result, prefiltered)
+            if isinstance(result, Exception)
+        )
 
-    def get_dict(self) -> dict[TesterID, "TesterExternalModel"]:
-        return {
-            r.id: TesterExternalModel.parse_obj(r.as_dict)
-            for r in self.resources
-        }
+    def get_items(self) -> Generator[TesterInfoModel, None, None]:
+        return (r.info() for r in self.resources.values())
 
     def select(self, tester_ids: tuple[TesterID, ...]) -> Generator[Resource, None, None]:
-        for res in self.resources:
-            if res.id not in tester_ids:
-                raise UnknownResourceError(res.id)
+        for tester_id in tester_ids:
+            res = self.resources.get(tester_id, None)
+            if not res:
+                raise UnknownResourceError(tester_id)
             yield res
-
-
-""""
-Messages Order
-CONNECTED - Ignored message
-
-1. ADDED - add tester to the pool send message to the user
-    - CONNECTED - Try to initiate connection with the tester if OK send message to user
-    - CHANGED - on tester data cahnged send message to the user
-    - DISCONNECTED - send message to the user
-2. REMOVED - Extract tester and send message to the user
-
-DISCONNECTED - Ignored message
-"""
 
 
 class Msg(BaseModel):
     action: str
-    data: Dict[str, Any]
-
-
-class PublisherMethod(Protocol):
-    def __call__(self, msg: Any) -> Any:
-        ...
+    data: TesterInfoModel
 
 
 class ResourcesPool:
     __slots__ = ("__resources", "__publisher")
 
-    def __init__(self, publisher: PublisherMethod) -> None:
+    def __init__(self, publisher: Callable[[Any], None]) -> None:
         self.__publisher = publisher
         self.__resources: dict[TesterID, Resource] = dict()
 
@@ -83,7 +86,7 @@ class ResourcesPool:
         """Realocate pool for keep low memory usage."""
         self.__resources = {**self.__resources}
 
-    async def __publish_message(self, dataset: dict[str, Any], event: str) -> None:
+    async def __publish_message(self, dataset: TesterInfoModel, event: str) -> None:
         message = Msg(action=event, data=dataset)
         self.__publisher(message)
 
@@ -91,7 +94,7 @@ class ResourcesPool:
         """Add Resource to the pool and subscribe on changes"""
         self.__resources[resource.id] = resource
         self.__optimize()
-        await self.__publish_message(resource.as_dict, const.ADDED)
+        await self.__publish_message(resource.info(), const.ADDED)
         resource.events.on_changed(self.__publish_message)
         resource.events.on_connected(self.__publish_message)
         resource.events.on_disconnected(self.__publish_message)
@@ -107,10 +110,10 @@ class ResourcesPool:
         if resource := self.__resources.pop(id, None):
             self.__optimize()
             resource.events.reset()
-            await self.__publish_message(resource.as_dict, const.REMOVED)
+            await self.__publish_message(resource.info(), const.REMOVED)
             return resource
         raise UnknownResourceError(id)
 
     @property
     def all(self) -> MultiResActions:
-        return MultiResActions(self.__resources.values())
+        return MultiResActions(self.__resources)

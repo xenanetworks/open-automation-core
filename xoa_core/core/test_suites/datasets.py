@@ -1,3 +1,4 @@
+from __future__ import annotations
 from operator import attrgetter
 from typing import (
     TYPE_CHECKING,
@@ -31,14 +32,14 @@ class PortIdentity(BaseModel):
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, PortIdentity]
+    port_identities: List[PortIdentity]
     config: BaseModel
 
     @property
     def get_testers_ids(self) -> Set[str]:
         return set(map(
             attrgetter("tester_id"),
-            self.port_identities.values()
+            self.port_identities
         ))
 
 
