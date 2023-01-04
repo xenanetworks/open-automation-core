@@ -21,13 +21,12 @@ from xoa_core import __version__
 
 class PortIdentity(BaseModel):
     tester_id: str
-    tester_index: int
     module_index: int
     port_index: int
 
     @property
     def name(self) -> str:
-        return f"P-{self.tester_index}-{self.module_index}-{self.port_index}"
+        return f"P-{self.tester_id}-{self.module_index}-{self.port_index}"
 
 
 class TestParameters(BaseModel):
@@ -37,10 +36,7 @@ class TestParameters(BaseModel):
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(
-            attrgetter("tester_id"),
-            self.port_identities
-        ))
+        return set(map(attrgetter("tester_id"), self.port_identities))
 
 
 class PluginMeta(BaseModel):
@@ -61,6 +57,7 @@ class PluginData(NamedTuple):
     A test suit container.
     Contain references to starting points and metadata of the plugin
     """
+
     meta: PluginMeta
     entry_class: Type["PluginAbstract"]
     model_class: Type["TestParameters"]
@@ -72,22 +69,29 @@ class Plugin:
         self.debug = debug
 
     def parse_config(self, config: Dict[str, Any]) -> None:
-        self.params = self.plugin_data.model_class.parse_obj(config)  # can raise ValidationError
+        self.params = self.plugin_data.model_class.parse_obj(
+            config
+        )  # can raise ValidationError
 
     def assign_testers(self, tester_getter) -> None:
-        self.testers = tester_getter(self.params.get_testers_ids, self.params.username, self.debug)
+        self.testers = tester_getter(
+            self.params.get_testers_ids, self.params.username, self.debug
+        )
 
-    def create_test_suite(self, state_conditions: "PStateConditionsFacade", xoa_out: "PPipeFacade") -> "PluginAbstract":
+    def create_test_suite(
+        self, state_conditions: "PStateConditionsFacade", xoa_out: "PPipeFacade"
+    ) -> "PluginAbstract":
         return self.plugin_data.entry_class(
             state_conditions=state_conditions,
             xoa_out=xoa_out,
             testers=self.testers,
-            params=self.params
+            params=self.params,
         )
 
 
 def build_test_params(_test_config: Type["BaseModel"]) -> Type["TestParameters"]:
     class TP(TestParameters):
         config: _test_config
+
     TP.update_forward_refs(_test_config=_test_config)
     return TP
