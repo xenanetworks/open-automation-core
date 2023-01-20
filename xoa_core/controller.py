@@ -111,7 +111,7 @@ class MainController:
         """
         await self.__resources.disconnect(tester_id)
 
-    def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any]) -> str:
+    def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any], *, debug_connection: bool = False) -> str:
         """Start test suite execution
 
         :param test_suite_name: test suite name
@@ -121,7 +121,7 @@ class MainController:
         :return: test execution id
         :rtype: str
         """
-        plugin = self.suites_library.get_plugin(test_suite_name, False)
+        plugin = self.suites_library.get_plugin(test_suite_name, debug_connection)
         plugin.parse_config(config)
         plugin.assign_testers(self.__resources.get_testers_by_id)
         executor = SuiteExecutor(test_suite_name)

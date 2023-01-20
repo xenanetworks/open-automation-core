@@ -37,7 +37,7 @@ class PluginController:
             return None
         return dict(
             test_suit=suite.meta.dict(exclude={"entry_object", "data_model"}),
-            schema=suite.model_class.schema(),
+            schema=suite.model_class.schema_json(),
         )
 
     def get_plugin_data(self, name: str) -> "datasets.PluginData":
