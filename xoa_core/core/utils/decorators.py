@@ -1,6 +1,7 @@
 import functools
 import typing
 
+
 def post_notify(notifier: typing.Callable):
     def decorate(func):
         @functools.wraps(func)

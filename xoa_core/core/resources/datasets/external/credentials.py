@@ -6,6 +6,7 @@ from pydantic import (
 )
 from ..enums import EProductType
 
+
 class Credentials(BaseModel):
     product: EProductType
     host: str

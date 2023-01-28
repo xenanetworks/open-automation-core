@@ -1,7 +1,8 @@
 from enum import (
-    IntEnum, 
+    IntEnum,
     auto,
 )
+
 
 class Event(IntEnum):
     STOPPED = auto()

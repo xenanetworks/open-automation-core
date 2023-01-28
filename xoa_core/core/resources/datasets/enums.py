@@ -18,4 +18,4 @@ class EResourcesEvents(IntEnum):
     INFO_CHANGE_TESTER = auto()
     INFO_CHANGE_MODULE = auto()
     INFO_CHANGE_PORT = auto()
-    ERROR= auto()
+    ERROR = auto()
