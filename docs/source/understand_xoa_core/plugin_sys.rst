@@ -1,7 +1,7 @@
 .. _plugin_sys:
 
 Test Suite Plugin System
-=========================
+========================
 
 XOA Core dynamically loads test suites that are organized in a common structure, and exposes information of those test suites to the user.
 
@@ -13,7 +13,7 @@ Available operations for users:
 Users can register one or multiple test suite lookup folders in a test script by calling the method ``register_lib(<lookup_path: str>)``.
 
 Test Suite Plugin Folder Structure
-------------------------------------
+----------------------------------
 
 A test suite plugin must have the structure below:
 
@@ -53,6 +53,6 @@ The ``data_model`` must be a class o <https://pydantic-docs.helpmanual.io/>`_ mo
     Test suites are treated as an `asyncio.Taksk <https://docs.python.org/3/library/asyncio-task.html#id2>`_ . It means all heavy computational operations must be implemented with subprocess workers or threadings.
 
 Plugin Example
----------------
+--------------
 
 You can find the source code of a `test suite plugin example <https://github.com/xenanetworks/open-automation-core/tree/main/examples/billet_plugin_example/FrameLoss.>`_
