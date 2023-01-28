@@ -13,17 +13,13 @@ This section provides a step-by-step guide on how to use XOA Core to run XOA tes
 
   * `Step 4. Copy XOA Test Suite Plugin into Project Folder`_
 
-* **How to configure a XOA test suite**
+* **How to run with XOA configs**
 
-  * `Step 5. Write Your Code in main.py`_
+  * `Step 5a. Run XOA Test Suite Config`_
 
-* **How to fetch the outgoing statistics data**
+* **How to run with Valkyrie configs**
 
-  * `Step 5. Write Your Code in main.py`_
-
-* **If you want to run your old Valkyrie test suite config files**
-
-  * `Running Old Valkyrie Test Suite Configurations`_
+  * `Step 5b. Run Valkyrie Test Suite Config`_
 
 
 Step 1. Create Project Folder
@@ -87,10 +83,10 @@ Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my
             |- /plugin2544
 
 
-Step 5. Convert Test Config from Valkyrie to XOA
--------------------------------------------------
+Step 5a. Run XOA Test Suite Config
+----------------------------------
 
-The code example in ``main.py`` below demonstrates a very basic flow. 
+To run XOA test suite config files (.json files), simply run the XOA test suite config files directly, as shown below. If you want to run Valkyrie test suite config files (ended with ``.vXXXX``), go to `Step 5b. Run Valkyrie Test Suite Config`_.
 
 .. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
@@ -114,10 +110,10 @@ To execute the program, simply do:
         [my_xoa_project]$ python3 main.py
 
 
-Running Old Valkyrie Test Suite Configurations
-----------------------------------------------
+Step 5b. Run Valkyrie Test Suite Config
+---------------------------------------
 
-If you want to run your old Valkyrie test suite configuration files, you should use ``xoa-convert`` to convert Valkyrie test suite configuration files into XOA's, as shown in the illustration below.
+If you want to run your Valkyrie test suite configuration files, you should use ``xoa-convert`` to convert Valkyrie test suite configuration files into XOA's, as shown in the illustration below.
 
 .. image:: ../_static/xoa_converter_illustration.png
     :width: 600
