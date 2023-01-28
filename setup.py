@@ -1,6 +1,7 @@
 import setuptools
 
-def main():
+
+def main() -> None:
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
@@ -16,7 +17,7 @@ def main():
         url="https://github.com/xenanetworks/open-automation-core",
         packages=setuptools.find_packages(),
         license='Apache 2.0',
-        install_requires = ["xoa_driver", "pydantic", "semver", "oyaml", "loguru"],
+        install_requires=["xoa_driver", "pydantic", "semver", "oyaml", "loguru"],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
@@ -29,6 +30,6 @@ def main():
         python_requires=">=3.8.9",
     )
 
+
 if __name__ == '__main__':
     main()
-
