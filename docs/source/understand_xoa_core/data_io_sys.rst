@@ -9,6 +9,7 @@ Message Subscription
 XOA Core provide two types of messages for you to subscribe to:
 
 * ``Subsystem Type``
+
 * ``Test Execution Type``
 
 Subsystem Type Message
@@ -30,11 +31,15 @@ There are two types of subsystems that you can subscribe to:
     types.PIPE_EXECUTOR
     types.PIPE_RESOURCES
 
+* ``types.PIPE_EXECUTOR`` messages tells information about the test executor.
+
+* ``types.PIPE_RESOURCES`` messages tells information about the test resources, such as port reservation status, link sync status, tester connection status and so on.
+
 
 Test Execution Type
 ^^^^^^^^^^^^^^^^^^^
 
-Subscribe to the messages from a test execution.
+A test execution can generate different types of messages, such as **test statistics**, **test progress**, **test state**, **errors**, and **warnings**. To subscribe to a specific type, you can use the ``_filter`` argument.
 
 .. code-block:: python
     :caption: Subscribe to statistics of test execution
@@ -42,7 +47,6 @@ Subscribe to the messages from a test execution.
     async for msg in my_controller.listen_changes(execution_id, _filter={<filter_type>}):
         # do whatever you want to the message
 
-A test execution can generate different types of messages, such as test statistics, test progress, test state, errors, and warnings. To subscribe to a specific type, you can use the ``_filter`` argument.
 
 The ``_filter`` argument is an set of filter types. The first parameter of ``_filter`` argument is a mandatory identifier of the subsystem or the test suite execution. Available filters types are as shown below:
 
@@ -61,13 +65,8 @@ The ``_filter`` argument is an set of filter types. The first parameter of ``_fi
     
     ``_filter`` argument is optional. If it is not provided, all message types will be returned from this test suite execution.
 
-
-In the example bellow, we subscribe only to the statistic messages from the test suite that is in execution.
-
-    ``Line no.25``: Subscribe to all message exchanges with the tester.
-    
-    ``Line no.36``: Subscribe to statistic messages.
+The example below demonstrates how to subscribe to test resource notifications and test results.
 
 .. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
-    :emphasize-lines: 35, 52
+    :emphasize-lines: 25-27, 38-40

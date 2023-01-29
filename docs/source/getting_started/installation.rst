@@ -66,6 +66,8 @@ Installing From PyPI Using ``pip``
     If you install XOA Core using ``pip install xoa-core``, XOA Python API (PyPI package name `xoa_driver <https://pypi.org/project/xoa-python-api/>`_) will be automatically installed.
 
 
+.. _install_core_global:
+
 Install to Global Namespace
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -76,8 +78,8 @@ Install to Global Namespace
         :caption: Install XOA Core in Windows environment from PyPI.
 
         > pip install xoa-core            # latest version
-        > pip install xoa-core==1.0.3     # specific version
-        > pip install xoa-core>=1.0.3     # minimum version
+        > pip install xoa-core==1.0.7     # specific version
+        > pip install xoa-core>=1.0.7     # minimum version
 
 .. tab:: macOS/Linux
 
@@ -85,9 +87,11 @@ Install to Global Namespace
         :caption: Install XOA Core in macOS/Linux environment from PyPI.
 
         $ pip install xoa-core            # latest version
-        $ pip install xoa-core==1.0.3     # specific version
-        $ pip install xoa-core>=1.0.3     # minimum version
+        $ pip install xoa-core==1.0.7     # specific version
+        $ pip install xoa-core>=1.0.7     # minimum version
 
+
+.. _install_core_venv:
 
 Install in Virtual Environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,7 +108,9 @@ For example, your project folder is called ``/my_xoa_project``.
         [my_xoa_project]> python -m venv ./env
         [my_xoa_project]> source ./env/bin/activate
 
-        (env) [my_xoa_project]> pip install xoa-core 
+        (env) [my_xoa_project]> pip install xoa-core         # latest version
+        (env) [my_xoa_project]> pip install xoa-core==1.0.7  # specific version
+        (env) [my_xoa_project]> pip install xoa-core>=1.0.7  # minimum version
 
 .. tab:: macOS/Linux
 
@@ -113,7 +119,19 @@ For example, your project folder is called ``/my_xoa_project``.
 
         [my_xoa_project]$ python3 -m venv ./env
         [my_xoa_project]$ source ./env/bin/activate
-        (env) [my_xoa_project]$ pip install xoa-core
+
+        (env) [my_xoa_project]$ pip install xoa-core         # latest version
+        (env) [my_xoa_project]$ pip install xoa-core==1.0.7  # specific version
+        (env) [my_xoa_project]$ pip install xoa-coree>=1.0.7 # minimum version
+
+Afterwards, your project folder will be:
+
+.. code-block::
+    :caption: After creating Python virtual environment
+
+    /my_xoa_project
+        |
+        |- env
 
 .. seealso::
 

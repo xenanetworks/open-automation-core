@@ -22,6 +22,10 @@ async def run_test(tester: types.Credentials, plugin_path: str, suite_name: str,
     # If you want to add a list of testers, you need to iterate through the list.
     await ctrl.add_tester(tester)
 
+    # Subscribe to test resource notifications.
+    async for msg in ctrl.listen_changes(types.PIPE_RESOURCES):
+        print(msg)
+
     # get rfc2544 test suite information from the core's registration
     info = ctrl.get_test_suite_info(suite_name)
     if not info:
