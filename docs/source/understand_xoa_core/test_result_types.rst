@@ -34,7 +34,5 @@ To check the type of the test result data:
     async for stats_data in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
         if stats_data.is_final == True:
             # This is final result
-        elif stats_data.abc == :
-            # This is intermediate result
         else:
-            # This is live result
+            ...
