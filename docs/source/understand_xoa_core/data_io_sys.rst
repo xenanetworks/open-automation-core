@@ -69,4 +69,4 @@ The example below demonstrates how to subscribe to test resource notifications a
 
 .. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
-    :emphasize-lines: 25-27, 38-40
+    :emphasize-lines: 32-34, 48-50
