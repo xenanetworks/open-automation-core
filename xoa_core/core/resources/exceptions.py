@@ -2,6 +2,7 @@ import typing
 if typing.TYPE_CHECKING:
     from . import misc
 
+
 class InvalidTesterTypeError(ValueError):
     def __init__(self, props: "misc.IProps") -> None:
         self.props = props
@@ -15,6 +16,7 @@ class TesterCommunicationError(Exception):
         self.error = error
         self.msg = f"Tester with credentials: {props} encountering communication error: {error}"
         super().__init__(self.msg)
+
 
 class ResourceNotAvaliableError(Exception):
     def __init__(self, tester_id) -> None:

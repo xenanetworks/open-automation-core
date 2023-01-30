@@ -7,12 +7,14 @@ from pydantic import SecretStr
 from xoa_driver import testers
 from .datasets import enums
 
+
 class IProps(Protocol):
     id: str
     product: enums.EProductType
     host: str
     port: int
     password: SecretStr
+
 
 def get_tester_inst(props: IProps, username: str = "xoa-manager", debug=False) -> Optional[testers.GenericAnyTester]:
     tester_type: Optional[Type[testers.GenericAnyTester]] = {

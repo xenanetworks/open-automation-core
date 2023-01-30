@@ -2,23 +2,26 @@ from xoa_driver import testers
 from xoa_driver import modules
 from xoa_driver import ports
 
+
 def is_tester(inst) -> bool:
     cmp_types = (
-        testers.L23Tester, 
-        testers.L47Tester, 
-        testers.L47VeTester
+        testers.L23Tester,
+        testers.L47Tester,
+        testers.L47VeTester,
     )
     return isinstance(inst, cmp_types)
+
 
 def is_module(inst) -> bool:
     cmp_types = (
         modules.ModuleL23,
         modules.ModuleL23VE,
-        modules.ModuleChimera, 
+        modules.ModuleChimera,
         modules.ModuleL47,
         modules.ModuleL47VE,
     )
     return isinstance(inst, cmp_types)
+
 
 def is_port(inst) -> bool:
     cmp_types = (

@@ -1,129 +1,76 @@
 Step-by-Step Guide
 ===================
 
-This section provides a step-by-step guide about how to load a XOA test suite into XOA Core, and run the test.
+This section provides a step-by-step guide on how to use XOA Core to run XOA test suites. 
+
 
 Create Project Folder
--------------------------
+---------------------
 
-First, create a folder on your computer at a location you want. This folder will be the place where you keep your XOA test suites and a simple Python program to load and run them using XOA Core framework.
+To run XOA test suites, you need a folder to place the test suite plugins, the test configuration files, and yous Python script to control the tests.
 
 Let's create a folder called ``/my_xoa_project``
 
 .. code-block::
-    :caption: Create project folder
+    :caption: Create the project folder
 
     /my_xoa_project
         |
-
-
-Create Necessary Files
--------------------------
-
-Create a ``main.py`` file inside the folder ``/my_xoa_project``.
-
-Then, on the same level as ``main.py``, create a folder ``/plugins`` for keeping your test suites.
-
-After that, create a ``__init__.py`` inside folder ``/plugins`` to make it into a `package <https://docs.python.org/3/tutorial/modules.html#packages>`_.
-
-.. code-block::
-    :caption: Create necessary files
-
-    /my_xoa_project
-        |
-        |- main.py
-        |- /plugins
-            |- __init__.py
-            |
 
 
 Install XOA Core
--------------------------
+----------------
+
+After creating the folder, you can either choose to :ref:`install XOA Core in a Python virtual environment <install_core_venv>` or :ref:`install in your global namespace <install_core_global>` .
 
 If you have already installed XOA Core in your system, either to your global namespace or in a virtual environment, you can skip this step.
 
-Install XOA Core in Virtual Environment
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Install XOA Core in a virtual environment, so it does not pollute your global namespace:
+Place Test Suite Plugins
+------------------------
 
-.. tab:: Windows
+Depending on what XOA test you want to run, place the corresponding XOA test suite plugins and the test configuration files in ``/my_xoa_project``.
 
-    .. code-block:: doscon
-        :caption: Install XOA Core in a virtual environment in Windows from PyPi.
+For example, if you want to run RFC2544 and RFC2889 tests, copy test suite plugins ``/plugin2544`` and ``/plugin2889`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project``.
 
-        [my_xoa_project]> python -m venv ./env
-        [my_xoa_project]> source ./env/bin/activate
-
-        (env) [my_xoa_project]> pip install xoa-core 
-
-.. tab:: macOS/Linux
-
-    .. code-block:: console
-        :caption: Install XOA Core in a virtual environment in macOS/Linux from PyPi.
-
-        [my_xoa_project]$ python3 -m venv ./env
-        [my_xoa_project]$ source ./env/bin/activate
-        (env) [my_xoa_project]$ pip install xoa-core
-
-.. seealso::
-
-    * `Virtual Python environment <https://packaging.python.org/en/latest/tutorials/installing-packages/#creating-and-using-virtual-environments>`_
-    * `virtualenv <https://virtualenv.pypa.io/en/latest/#>`_
-    * `venv <https://docs.python.org/3/library/venv.html>`_
-
-
-Install XOA Core to Global Namespace
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Install XOA Core to your global namespace:
-
-.. tab:: Windows
-    :new-set:
-
-    .. code-block:: doscon
-        :caption: Install XOA Core to global namespace in Windows from PyPi.
-
-        [my_xoa_project]> pip install xoa-core 
-
-.. tab:: macOS/Linux
-
-    .. code-block:: console
-        :caption: Install XOA Core to global namespace in macOS/Linux from PyPi.
-
-        [my_xoa_project]$ pip install xoa-core
-
-
-Copy XOA Test Suite Plugin into Project Folder
------------------------------------------------
-
-Copy a test suite plugin, e.g. ``/plugin2544`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project/plugins``.
-
-Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my_xoa_project`` for easy access.
+Your project folder will look like this afterwards.
 
 .. code-block::
-    :caption: Copy test suite plugin into project
+    :caption: Copy test suite plugins into the project folder
+
+    /my_xoa_project
+        |
+        |- /plugin2544
+        |- /plugin2889
+
+
+Run Tests from XOA Test Suite Configurations
+--------------------------------------------
+
+.. important::
+
+    If you run **Valkyrie test suite configuration files** (``.v2544`` for :term:`Valkyrie2544`, ``.v2889`` for :term:`Valkyrie2889`, ``.v3918`` for :term:`Valkyrie3918`, and ``.v1564`` for :term:`Valkyrie1564`), go to `Run Tests from Valkyrie Test Suite Configurations`_.
+
+Copy your XOA test configuration ``.json`` files, e.g. ``new_2544_config.json`` and ``new_2889_config.json`` into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
+
+.. code-block::
+    :caption: Copy XOA test configs and create main.py
 
     /my_xoa_project
         |
         |- main.py
-        |- my2544_data.json
-        |- /plugins
-            |- __init__.py
-            |- /plugin2544
+        |- new_2544_config.json
+        |- new_2889_config.json
+        |- /plugin2544
+        |- /plugin2889
 
+This ``main.py`` controls the test workflow, i.e. load the configuration files, start tests, receive test results, and stop tests. The example below demonstrates a basic flow for you to run XOA tests.
 
-Write Your Code in ``main.py``
-----------------------------------
-
-The code example in ``main.py`` below demonstrates a very basic flow. 
-
-.. literalinclude:: ../code_example/main.py
+.. literalinclude:: ../code_example/running_xoa_config.py
     :language: python
-    :linenos:
 
 
-To execute the program, simply do:
+Then simply run ``main.py``:
 
 .. tab:: Windows
     :new-set:
@@ -139,3 +86,54 @@ To execute the program, simply do:
         :caption: Run test suite in macOS/Linux.
 
         [my_xoa_project]$ python3 main.py
+
+
+Run Tests from Valkyrie Test Suite Configurations
+-------------------------------------------------
+
+If you want to run your Valkyrie test suite configuration files, you should install ``xoa-converter``  to convert Valkyrie test suite configurations into XOA test suite configurations, as illustrated below.
+
+.. image:: ../_static/xoa_converter_illustration.png
+    :width: 600
+    :alt: Illustration of Valkyrie-to-XOA conversion flow
+
+
+.. seealso::
+    
+    Read more about installing `XOA Config Convert <https://docs.xenanetworks.com/projects/xoa-config-converter>`_
+
+
+Copy your Valkyrie test configurations e.g. ``old_2544_config.v2544`` and ``old_2889_config.v2889`` into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
+
+.. code-block::
+    :caption: Copy Valkyrie test configs and create main.py
+
+    /my_xoa_project
+        |
+        |- main.py
+        |- old_2544_config.v2544
+        |- old_2889_config.v2889
+        |- /plugin2544
+        |- /plugin2889
+
+This ``main.py`` controls the test workflow, i.e. convert Valkyrie configs into XOA configs, load the configuration files, start tests, receive test results, and stop tests. The example below demonstrates a basic flow for you to run Valkyrie tests.
+
+.. literalinclude:: ../code_example/running_valkyrie_config.py
+    :language: python
+
+
+Receive Test Result Data
+------------------------
+
+XOA Core sends test result data (in JSON format) to your code as shown in the example below. It is up to you to decide how to process it, either parse it and display in your console, or store them into a file.
+
+.. code-block:: python
+    :caption: Receive test result data
+
+    async for stats_data in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
+        print(stats_data)
+
+.. seealso::
+
+    Read about :doc:`../understand_xoa_core/test_result_types`
+

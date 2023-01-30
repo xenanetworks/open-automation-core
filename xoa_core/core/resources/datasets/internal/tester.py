@@ -17,6 +17,7 @@ from .module import ModuleModel
 
 T = TypeVar("T", bound="TesterModel")
 
+
 @dataclass
 class TesterModel:
     product: enums.EProductType
@@ -27,11 +28,11 @@ class TesterModel:
     reserved_by: str = ""
     is_connected: bool = False
     modules: Tuple[ModuleModel, ...] = field(default_factory=tuple)
-    id: str = None # type: ignore
+    id: str = None  # type: ignore
     keep_disconnected: bool = False
-    max_name_len: int = 0 # used by UI validation (Tester Name) & config validation
-    max_comment_len: int = 0 # used by UI validation (Tester Description) & config validation
-    max_password_len: int = 0 # used by UI validation (Tester Password) & config validation
+    max_name_len: int = 0
+    max_comment_len: int = 0
+    max_password_len: int = 0
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -59,7 +60,7 @@ class TesterModel:
             max_name_len=cpb.max_name_len,
             max_comment_len=cpb.max_name_len,
             max_password_len=cpb.max_name_len,
-            modules = tuple(
+            modules=tuple(
                 await asyncio.gather(*[
                     ModuleModel.from_module(module, notifier)
                     for module in tester.modules

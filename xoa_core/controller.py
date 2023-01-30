@@ -4,24 +4,35 @@ from .core.executors.manager import ExecutorsManager
 from .core.executors.executor import SuiteExecutor
 
 from .core.messanger.handler import OutMessagesHandler
-from .core.resources.manager import ResourcesManager, AllTesterTypes
-from .core.test_suites.controler import PluginController
 
+from .core.resources.manager import (
+    ResourcesManager,
+    AllTesterTypes,
+)
+from .core.test_suites.controler import PluginController
 from .core import const
 
 
 if typing.TYPE_CHECKING:
     from .types import EMsgType
+    from .core.messanger.misc import Message
     from .core.resources.datasets.external import credentials
 
 T = typing.TypeVar("T", bound="MainController")
 
+
 class MainController:
     """MainController - A main class of XOA-Core framework."""
 
-    __slots__ = ("__publisher", "__resources", "suites_library", "__execution_manager")
+    __slots__ = ("__publisher", "__resources", "suites_library", "__execution_manager",)
 
     def __init__(self, *, storage_path: typing.Optional[str] = None, mono: bool = False) -> None:
+        """
+        :param storage_path: Custom path of where to store testers information, by default is current working dirrectory
+        :type storage_path: str | None
+        :param mono: Flag specify if only single Test-Suite execution can be runned at the same time
+        :type mono: bool
+        """
         __storage_path = os.path.join(os.getcwd(), "store") if not storage_path else storage_path
 
         self.__publisher = OutMessagesHandler()
@@ -30,11 +41,10 @@ class MainController:
 
         executor_pipe = self.__publisher.get_pipe(const.PIPE_EXECUTOR)
         self.__execution_manager = ExecutorsManager(executor_pipe, mono)
-        
+
         self.suites_library = PluginController()
 
-
-    def listen_changes(self, *names: str, _filter: typing.Optional[typing.Set["EMsgType"]] = None):
+    def listen_changes(self, *names: str, _filter: typing.Optional[typing.Set["EMsgType"]] = None) -> typing.AsyncGenerator["Message", None]:
         """Subscribe to the messages from different subsystems and test-suites."""
         return self.__publisher.changes(*names, _filter=_filter)
 
@@ -111,7 +121,7 @@ class MainController:
         """
         await self.__resources.disconnect(tester_id)
 
-    def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any]) -> str:
+    def start_test_suite(self, test_suite_name: str, config: typing.Dict[str, typing.Any], *, debug_connection: bool = False) -> str:
         """Start test suite execution
 
         :param test_suite_name: test suite name
@@ -121,7 +131,7 @@ class MainController:
         :return: test execution id
         :rtype: str
         """
-        plugin = self.suites_library.get_plugin(test_suite_name, False)
+        plugin = self.suites_library.get_plugin(test_suite_name, debug_connection)
         plugin.parse_config(config)
         plugin.assign_testers(self.__resources.get_testers_by_id)
         executor = SuiteExecutor(test_suite_name)

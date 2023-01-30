@@ -35,6 +35,8 @@ from .exceptions import (
 AllTesterTypes = Union["CredentialsModel", "TesterExternalModel"]
 
 RM = TypeVar("RM", bound="ResourcesManager")
+
+
 class ResourcesManager:
     __slots__ = ("_msg_pipe", "__precision_storage", "__observer", "_pool", )
 
@@ -131,4 +133,3 @@ class ResourcesManager:
 
     async def __tester_info_change(self, data: "TesterExternalModel") -> None:
         self._msg_pipe.transmit(data)
-

@@ -8,8 +8,6 @@ from typing import (
     Set,
     NamedTuple,
     Any,
-    Protocol,
-    Union
 )
 from pydantic import BaseModel
 import semver
@@ -29,6 +27,7 @@ class PortIdentity(BaseModel):
     def name(self) -> str:
         return f"P-{self.tester_index}-{self.module_index}-{self.port_index}"
 
+
 class TestParameters(BaseModel):
     username: str
     port_identities: Dict[str, PortIdentity]
@@ -41,6 +40,7 @@ class TestParameters(BaseModel):
             self.port_identities.values()
         ))
 
+
 class PluginMeta(BaseModel):
     name: str
     version: str
@@ -48,10 +48,11 @@ class PluginMeta(BaseModel):
     author: Optional[List[str]] = None
     entry_object: str
     data_model: str
-    
+
     @property
     def is_supported(self) -> bool:
         return semver.match(__version__, self.core_version)
+
 
 class PluginData(NamedTuple):
     """
@@ -62,6 +63,7 @@ class PluginData(NamedTuple):
     entry_class: Type["PluginAbstract"]
     model_class: Type["TestParameters"]
 
+
 class Plugin:
     def __init__(self, plugin_data: PluginData, debug: bool = False) -> None:
         self.plugin_data = plugin_data
@@ -69,10 +71,10 @@ class Plugin:
 
     def parse_config(self, config: Dict[str, Any]) -> None:
         self.params = self.plugin_data.model_class.parse_obj(config) # can raise ValidationError
-    
+
     def assign_testers(self, tester_getter) -> None:
         self.testers = tester_getter(self.params.get_testers_ids, self.params.username, self.debug)
-    
+
     def create_test_suite(self, state_conditions: "PStateConditionsFacade",  xoa_out: "PPipeFacade") -> "PluginAbstract":
         return self.plugin_data.entry_class(
             state_conditions=state_conditions, 
@@ -81,7 +83,10 @@ class Plugin:
             params=self.params
         )
 
+
 def build_test_params(_test_config: Type["BaseModel"]) -> Type["TestParameters"]:
     class TP(TestParameters):
         config: _test_config
+
+    TP.update_forward_refs(_test_config=_test_config)
     return TP
