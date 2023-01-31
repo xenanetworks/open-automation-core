@@ -6,13 +6,18 @@ from xoa_core import (
 import asyncio
 import json
 from pathlib import Path
+# XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`
 from xoa_converter.entry import converter
 from xoa_converter.types import TestSuiteType
 
-PLUGINS_PATH = Path(__file__).parent
-OLD_2544_CONFIG =  "old_2544_config.v2544"
-OLD_2889_CONFIG =  "old_2889_config.v2889" 
+PROJECT_PATH = Path(__file__).parent
+OLD_2544_CONFIG = PROJECT_PATH / "old_2544_config.v2544"
+OLD_2889_CONFIG = PROJECT_PATH / "old_2889_config.v2889" 
+PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
+async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["EMsgType"] | None = None) -> None:
+    async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
+            print(stats_data)
 
 async def main() -> None:
     # Define your tester login credentials
@@ -32,8 +37,7 @@ async def main() -> None:
     await ctrl.add_tester(my_tester_credential)
 
     # Subscribe to test resource notifications.
-    async for msg in ctrl.listen_changes(types.PIPE_RESOURCES):
-        print(msg)
+    asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
 
 
     # Convert Valkyrie 2544 config into XOA 2544 config and run.
@@ -54,8 +58,13 @@ async def main() -> None:
         execution_id = ctrl.start_test_suite("RFC-2544", new_config)
         
         # The example here only shows a print of test result data.
-        async for stats_data in ctrl.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
-            print(stats_data)
+        asyncio.create_task(
+            subscribe(ctrl, channel_name=test_exec_id, fltr={types.EMsgType.STATISTICS})
+        )
+
+    # By the next line, we prevent the script from being immediately 
+    # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
+    await asyncio.Event.wait()
 
 
 if __name__ == "__main__":

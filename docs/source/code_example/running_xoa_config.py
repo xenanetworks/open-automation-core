@@ -7,11 +7,16 @@ import asyncio
 import json
 from pathlib import Path
 
-PLUGINS_PATH = Path(__file__).parent
-XOA_2544_CONFIG = "xoa_2544_config.json"
-XOA_2889_CONFIG = "xoa_2889_config.json"
+PROJECT_PATH = Path(__file__).parent
+XOA_2544_CONFIG = PROJECT_PATH / "xoa_2544_config.json"
+XOA_2889_CONFIG = PROJECT_PATH / "xoa_2889_config.json"
+PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
 
+async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["EMsgType"] | None = None) -> None:
+    async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
+            print(stats_data)
+    
 async def main() -> None:
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
@@ -30,13 +35,12 @@ async def main() -> None:
     await ctrl.add_tester(my_tester_credential)
 
     # Subscribe to test resource notifications.
-    async for msg in ctrl.listen_changes(types.PIPE_RESOURCES):
-        print(msg)
+    asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
 
     # Load your XOA 2544 config and run.
     with open(XOA_2544_CONFIG, "r") as f:
 
-        # get rfc2544 test suite information from the core's registration
+        # Get rfc2544 test suite information from the core's registration
         info = ctrl.get_test_suite_info("RFC-2544")
         if not info:
             print("Test suite RFC-2544 is not recognized.")
@@ -46,8 +50,13 @@ async def main() -> None:
         test_exec_id = ctrl.start_test_suite("RFC-2544", json.load(f))
     
         # The example here only shows a print of test result data.
-        async for stats_data in ctrl.listen_changes(test_exec_id, _filter={types.EMsgType.STATISTICS}):
-            print(stats_data)
+        asyncio.create_task(
+            subscribe(ctrl, channel_name=test_exec_id, fltr={types.EMsgType.STATISTICS})
+        )
+     
+     # By the next line, we prevent the script from being immediately 
+     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
+     await asyncio.Event.wait()
 
 
 if __name__ == "__main__":
