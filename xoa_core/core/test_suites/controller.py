@@ -23,6 +23,8 @@ class PluginController:
 
     def register_path(self, path: str | Path) -> None:
         """Register custom path of plugins"""
+        if path in self.__paths:
+            return None
         self.__paths += (
             os.path.abspath(path)
             if not os.path.isabs(path)
