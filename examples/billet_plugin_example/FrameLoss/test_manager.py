@@ -5,26 +5,28 @@ import contextlib
 import time
 from typing import Awaitable, TypeVar, AsyncGenerator, Protocol
 
+
 class TResourcesManager(Protocol):
-    async def clear_statistic_counters(self) -> None: ...
-    async def start_traffic(self) -> None: ...
-    async def stop_traffic(self) -> None: ...
-    async def cleanup(self) -> None: ...
-    async def setup(self) -> None: ...
-    async def set_time_limit(self, duration_sec: int) -> None: ...
-    async def get_time_elipsed(self) -> int: ...
-    async def set_frame_limit(self, max_frames: int) -> None: ...
+    async def clear_statistic_counters(self) -> None: ...  # noqa: E704
+    async def start_traffic(self) -> None: ...  # noqa: E704
+    async def stop_traffic(self) -> None: ...  # noqa: E704
+    async def cleanup(self) -> None: ...  # noqa: E704
+    async def setup(self) -> None: ...  # noqa: E704
+    async def set_time_limit(self, duration_sec: int) -> None: ...  # noqa: E704
+    async def get_time_elipsed(self) -> int: ...  # noqa: E704
+    async def set_frame_limit(self, max_frames: int) -> None: ...  # noqa: E704
     @property
-    def all_traffic_is_stop(self) -> bool: ...
+    def all_traffic_is_stop(self) -> bool: ...  # noqa: E704
     @property
-    def all_ports_is_sync(self) -> bool: ...
+    def all_ports_is_sync(self) -> bool: ...  # noqa: E704
 
 
 T = TypeVar("T", bound="L23TestManager")
 
+
 class L23TestManager:
     __slots__ = ("__testers", "__resources", "__lock")
-    
+
     def __init__(self, resources: TResourcesManager) -> None:
         self.__resources = resources
         self.__lock = asyncio.Lock()
@@ -32,17 +34,17 @@ class L23TestManager:
     async def setup(self):
         await self.__resources.setup()
         return self
-    
+
     async def __aenter__(self: Awaitable[T]) -> T:
         return await self
-    
+
     async def __aexit__(self, exc_type, exc, traceback) -> None:
         async with self.__lock:
             await self.__resources.cleanup()
-    
-    def __await__(self: T): # type: ignore
+
+    def __await__(self: T):  # type: ignore
         return self.setup().__await__()
-    
+
     @contextlib.asynccontextmanager
     async def __traffic_runner(self) -> AsyncGenerator[None, None]:
         await self.__resources.clear_statistic_counters()
@@ -52,7 +54,7 @@ class L23TestManager:
         finally:
             async with self.__lock:
                 await self.__resources.stop_traffic()
-    
+
     async def generate_traffic(self, duration: int, *, sampling_rate: float = 1.0) -> AsyncGenerator[int, None]:
         await self.__resources.set_time_limit(duration)
         # await self.__resources.set_frame_limit(duration)

@@ -3,6 +3,7 @@ from enum import Enum
 
 SLEEP_SECONDS = 5
 
+
 class DurationTimeUnit(Enum):
     SECOND = "seconds"
     MINUTE = "minutes"

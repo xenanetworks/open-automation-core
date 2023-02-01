@@ -8,7 +8,7 @@ from typing import (
 )
 
 from xoa_core.core import exceptions
-from . import datasets #import PluginData, Plugin
+from . import datasets  # import PluginData, Plugin
 from . import _loader as loader
 
 
@@ -21,6 +21,8 @@ class PluginController:
 
     def register_path(self, path: str) -> None:
         """Register custom path of plugins"""
+        if path in self.__paths:
+            return None
         self.__paths += (
             os.path.abspath(path)
             if not os.path.isabs(path)
@@ -48,7 +50,7 @@ class PluginController:
             raise exceptions.TestSuiteVersionError(name, plugin_data.meta.core_version)
         return plugin_data
 
-    def get_plugin(self, name: str, debug: bool=False) -> "datasets.Plugin":
+    def get_plugin(self, name: str, debug: bool = False) -> "datasets.Plugin":
         plugin_data = self.get_plugin_data(name)
         return datasets.Plugin(plugin_data, debug)
 
@@ -64,4 +66,3 @@ class PluginController:
             (plugin.meta.name, plugin)
             for plugin in self.__read_plugins()
         )
-

@@ -13,9 +13,9 @@ XOA_2889_CONFIG = PROJECT_PATH / "xoa_2889_config.json"
 PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
 
-async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["EMsgType"] | None = None) -> None:
+async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["types.EMsgType"] | None = None) -> None:
     async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
-            print(stats_data)
+            print(msg)
     
 async def main() -> None:
     # Define your tester login credentials
@@ -53,10 +53,10 @@ async def main() -> None:
         asyncio.create_task(
             subscribe(ctrl, channel_name=test_exec_id, fltr={types.EMsgType.STATISTICS})
         )
-     
-     # By the next line, we prevent the script from being immediately 
-     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
-     await asyncio.Event.wait()
+
+    # By the next line, we prevent the script from being immediately 
+    # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
+    await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
