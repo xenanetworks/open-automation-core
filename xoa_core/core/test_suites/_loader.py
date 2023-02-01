@@ -73,8 +73,15 @@ def __read_meta(path: str) -> "PluginMeta":
         return PluginMeta(**data)
 
 
+def __register_path(path: str | Path) -> None:
+    str_path = str(path)
+    if str_path in sys.path:
+        return None
+    sys.path.append(str_path)
+
+
 def load_plugin(path: str | Path) -> Generator[PluginData, None, None]:
-    sys.path.append(str(path))
+    __register_path(path)
     for child in os.listdir(path):
         child_path = os.path.abspath(os.path.join(path, child))
         if not os.path.isdir(child_path):
