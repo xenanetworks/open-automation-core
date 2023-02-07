@@ -15,8 +15,9 @@ PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
 async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["types.EMsgType"] | None = None) -> None:
     async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
-            print(msg)
-    
+        print(msg)
+
+
 async def main() -> None:
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
@@ -48,13 +49,13 @@ async def main() -> None:
 
         # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
         test_exec_id = ctrl.start_test_suite("RFC-2544", json.load(f))
-    
+
         # The example here only shows a print of test result data.
         asyncio.create_task(
             subscribe(ctrl, channel_name=test_exec_id, fltr={types.EMsgType.STATISTICS})
         )
 
-    # By the next line, we prevent the script from being immediately 
+    # By the next line, we prevent the script from being immediately
     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
     await asyncio.Event().wait()
 
