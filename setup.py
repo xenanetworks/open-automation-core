@@ -1,7 +1,7 @@
 import setuptools
 
 
-def main():
+def main() -> None:
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 
@@ -10,14 +10,14 @@ def main():
         description="Xena Open Automation framework for Xena test suite execution, integration, and development.",
         long_description=long_description,
         long_description_content_type="text/markdown",
-        author="Artem Constantinov",
-        author_email="aco@xenanetworks.com",
+        author="Artem Constantinov, Leonard Yu",
+        author_email="aco@xenanetworks.com, hyu@xenanewtorks.com",
         maintainer="Xena Networks",
         maintainer_email="support@xenanetworks.com",
         url="https://github.com/xenanetworks/open-automation-core",
         packages=setuptools.find_packages(),
         license='Apache 2.0',
-        install_requires=["xoa_driver==1.0.12", "pydantic", "semver", "oyaml", "loguru"],
+        install_requires=["xoa_driver>=1.0.12", "pydantic", "semver", "oyaml", "loguru"],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",

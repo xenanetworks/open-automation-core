@@ -23,7 +23,7 @@ async def _get_from_queue(queue: "asyncio.Queue[Optional[misc.Message]]") -> Asy
 
 
 class OutMessagesHandler:
-    __slots__ = ("__pipes", "__senders", "__observer", )
+    __slots__ = ("__pipes", "__senders", "__observer",)
 
     def __init__(self) -> None:
         self.__pipes: Dict[str, MesagesPipe] = dict()

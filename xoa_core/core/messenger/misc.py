@@ -32,7 +32,8 @@ class StatePayload(BaseModel):
 
 
 class TransmitFunc(Protocol):
-    def __call__(self, msg: Any, *, msg_type: EMsgType) -> None: ...  # noqa: E704
+    def __call__(self, msg: Any, *, msg_type: EMsgType) -> None:
+        ...
 
 
 class PipeStateFacade:

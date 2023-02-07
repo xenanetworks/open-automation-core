@@ -72,7 +72,7 @@ class PluginAbstract(ABC, typing.Generic[DT]):
         """Dictionary of <TESTER_ID>: <TESTER_INSTANCE>"""
         self.port_identities = params.port_identities
         """PortIdentities a dictionary of <SLOT_ID>: <PortIdentity>"""
-        self.cfg: DT = params.config  # type: ignore
+        self.cfg: DT = typing.cast(DT, params.config)
         """Test configuration model defined by plugin."""
         self.prepare()
 

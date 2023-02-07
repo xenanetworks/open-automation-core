@@ -11,6 +11,7 @@ from typing import (
 )
 
 
+
 class TResourcesManager(Protocol):
     async def clear_statistic_counters(self) -> None: ...  # noqa: E704
     async def start_traffic(self) -> None: ...  # noqa: E704

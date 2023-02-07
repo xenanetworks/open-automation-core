@@ -37,15 +37,18 @@ class FrameLossTest(PluginAbstract["FrameLossModel"]):
             self.cfg.packet_size_cfg.packet_size[0],
             self.cfg.frame_loss.start_rate
         )
-        async for _ in test.generate_traffic(const.SLEEP_SECONDS): ...  # noqa: E701
+        async for _ in test.generate_traffic(const.SLEEP_SECONDS):
+            ...
         await self.statistics.check_rx_data()
 
     async def start(self) -> None:
         async with L23TestManager(self.resources) as test:
             await self.mac_lerning_frame(test)
+
             for current_props in self.cfg.get_test_loop():
                 await self.state_conditions.wait_if_paused()
                 await self.state_conditions.stop_if_stopped()
+
                 await self.resources.update_streams(
                     current_props.packet_size,
                     current_props.rate

@@ -14,7 +14,10 @@ from .executor_info import ExecutorInfo
 from . import exceptions
 from ._events import Event
 from .executor_state import ExecutorState
-from .executor_state_conditions import StateConditions, StateConditionsFacade
+from .executor_state_conditions import (
+    StateConditions,
+    StateConditionsFacade
+)
 
 
 class PPlugin(typing.Protocol):
@@ -22,8 +25,10 @@ class PPlugin(typing.Protocol):
 
 
 # TODO: Need to improve attributes creation in this class
+
+
 class SuiteExecutor:
-    __slots__ = ("suite_name", "state", "__id", "__observer", "__msg_pipe", "__test_suite", "__task", "state_conditions")
+    __slots__ = ("suite_name", "state", "__id", "__observer", "__msg_pipe", "__test_suite", "__task", "state_conditions",)
 
     def __init__(self, suite_name: str) -> None:
         self.__id = str(uuid.uuid4())
