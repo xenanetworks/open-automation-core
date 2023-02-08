@@ -49,7 +49,7 @@ async def main() -> None:
             return None
         
         # convert the old config file into new config file
-        new_data = converter(TestSuiteType.RFC2544, f.read(), info["schema"])
+        new_data = converter(TestSuiteType.RFC2544, f.read())
 
         # you can use the config file below to start the test
         new_config = json.loads(new_data)
