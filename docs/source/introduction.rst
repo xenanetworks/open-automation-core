@@ -15,7 +15,7 @@ Key features of XOA Core include:
 
 5. Logging and reporting: XOA Core offers built-in logging and reporting functionality, generating detailed test reports to help users analyze test results and identify issues.
 
-The official documentation (https://docs.xenanetworks.com/projects/xoa-core/en/stable/) provides a comprehensive guide on how to install, configure, and use XOA Core. It covers topics such as setting up the environment, creating test suites, executing test cases, and analyzing test results. The documentation also includes a reference for XOA Core's API and example test suites to help users get started with their test automation projects.
+The `official documentation <https://docs.xenanetworks.com/projects/xoa-core>`_ provides a comprehensive guide on how to install, configure, and use XOA Core. It covers topics such as setting up the environment, creating test suites, executing test cases, and analyzing test results. The documentation also includes a reference for XOA Core's API and example test suites to help users get started with their test automation projects.
 
 .. image:: ./_static/OPENAUTOMATION-2554.png
     :width: 150
