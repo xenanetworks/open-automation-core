@@ -11,13 +11,12 @@ from xoa_converter.entry import converter
 from xoa_converter.types import TestSuiteType
 
 PROJECT_PATH = Path(__file__).parent
-OLD_2544_CONFIG = PROJECT_PATH / "old_2544_config.v2544"
-OLD_2889_CONFIG = PROJECT_PATH / "old_2889_config.v2889" 
+OLD_CONFIG = PROJECT_PATH / "old_2544_config.v2544"
 PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
 async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["EMsgType"] | None = None) -> None:
     async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
-            print(stats_data)
+            print(msg)
 
 async def main() -> None:
     # Define your tester login credentials
@@ -41,7 +40,7 @@ async def main() -> None:
 
 
     # Convert Valkyrie 2544 config into XOA 2544 config and run.
-    with open(OLD_2544_CONFIG, "r") as f:
+    with open(OLD_CONFIG, "r") as f:
         # get rfc2544 test suite information from the core's registration
         info = ctrl.get_test_suite_info("RFC-2544")
         if not info:
@@ -55,7 +54,7 @@ async def main() -> None:
         new_config = json.loads(new_data)
 
         # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
-        execution_id = ctrl.start_test_suite("RFC-2544", new_config)
+        test_exec_id = ctrl.start_test_suite("RFC-2544", new_config)
         
         # The example here only shows a print of test result data.
         asyncio.create_task(
@@ -64,7 +63,7 @@ async def main() -> None:
 
     # By the next line, we prevent the script from being immediately 
     # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
-    await asyncio.Event.wait()
+    await asyncio.Event().wait()
 
 
 if __name__ == "__main__":

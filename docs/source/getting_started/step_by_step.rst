@@ -31,8 +31,6 @@ Place Test Suite Plugins
 
 Depending on what XOA test you want to run, place the corresponding XOA test suite plugins and the test configuration files in ``/my_xoa_project``.
 
-For example, if you want to run RFC2544 and RFC2889 tests, copy test suite plugins ``/plugin2544`` and ``/plugin2889`` from `XOA Test Suite <https://github.com/XenaNetworks/open-automation-test-suites>`_ into ``/my_xoa_project``.
-
 Your project folder will look like this afterwards.
 
 .. code-block::
@@ -40,8 +38,10 @@ Your project folder will look like this afterwards.
 
     /my_xoa_project
         |
-        |- /plugin2544
-        |- /plugin2889
+        |- /test_suites
+            |- /plugin2544
+            |- /plugin2889
+            |- /plugin3918
 
 
 Run Tests from XOA Test Suite Configurations
@@ -51,7 +51,7 @@ Run Tests from XOA Test Suite Configurations
 
     If you run **Valkyrie test suite configuration files** (``.v2544`` for :term:`Valkyrie2544`, ``.v2889`` for :term:`Valkyrie2889`, ``.v3918`` for :term:`Valkyrie3918`, and ``.v1564`` for :term:`Valkyrie1564`), go to `Run Tests from Valkyrie Test Suite Configurations`_.
 
-Copy your XOA test configuration ``.json`` files, e.g. ``new_2544_config.json`` and ``new_2889_config.json`` into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
+Copy your XOA test configuration ``.json`` files into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
 
 .. code-block::
     :caption: Copy XOA test configs and create main.py
@@ -61,8 +61,11 @@ Copy your XOA test configuration ``.json`` files, e.g. ``new_2544_config.json`` 
         |- main.py
         |- new_2544_config.json
         |- new_2889_config.json
-        |- /plugin2544
-        |- /plugin2889
+        |- new_3918_config.json
+        |- /test_suites
+            |- /plugin2544
+            |- /plugin2889
+            |- /plugin3918
 
 This ``main.py`` controls the test workflow, i.e. load the configuration files, start tests, receive test results, and stop tests. The example below demonstrates a basic flow for you to run XOA tests.
 
@@ -103,7 +106,7 @@ If you want to run your Valkyrie test suite configuration files, you should inst
     Read more about installing `XOA Config Convert <https://docs.xenanetworks.com/projects/xoa-config-converter>`_
 
 
-Copy your Valkyrie test configurations e.g. ``old_2544_config.v2544`` and ``old_2889_config.v2889`` into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
+Copy your Valkyrie test configurations into ``/my_xoa_project`` for easy access. Then create a ``main.py`` file inside the folder ``/my_xoa_project``.
 
 .. code-block::
     :caption: Copy Valkyrie test configs and create main.py
@@ -113,8 +116,11 @@ Copy your Valkyrie test configurations e.g. ``old_2544_config.v2544`` and ``old_
         |- main.py
         |- old_2544_config.v2544
         |- old_2889_config.v2889
-        |- /plugin2544
-        |- /plugin2889
+        |- old_3918_config.v3918
+        |- /test_suites
+            |- /plugin2544
+            |- /plugin2889
+            |- /plugin3918
 
 This ``main.py`` controls the test workflow, i.e. convert Valkyrie configs into XOA configs, load the configuration files, start tests, receive test results, and stop tests. The example below demonstrates a basic flow for you to run Valkyrie tests.
 
