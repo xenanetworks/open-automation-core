@@ -21,11 +21,11 @@ class PluginController:
 
     def register_path(self, path: str) -> None:
         """Register custom path of plugins"""
-        self.__paths += (
-            os.path.abspath(path)
-            if not os.path.isabs(path)
-            else path,
-        )
+        if not os.path.isabs(path):
+            path = os.path.abspath(path)
+        if path in self.__paths:
+            return None
+        self.__paths += (path,)
         self.__init_plugins()
 
     def available_test_suites(self) -> List[str]:
