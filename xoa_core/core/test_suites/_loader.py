@@ -1,4 +1,6 @@
+from __future__ import annotations
 import os
+from pathlib import Path
 import sys
 import oyaml as yaml
 import importlib.util
@@ -68,8 +70,14 @@ def __read_meta(path: str) -> "PluginMeta":
         data = yaml.load(outfile, Loader=yaml.SafeLoader)
         return PluginMeta(**data)
 
+def __register_path(path: str | Path) -> None:
+    str_path = str(path)
+    if str_path in sys.path:
+        return None
+    sys.path.append(str_path)
+
 def load_plugin(path: str) -> Generator[PluginData, None, None]:
-    sys.path.append(path)
+    __register_path(path)
     for child in os.listdir(path):
         child_path = os.path.abspath(os.path.join(path, child))
         if not os.path.isdir(child_path):
