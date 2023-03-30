@@ -9,3 +9,4 @@ loguru
 sphinx-book-theme
 sphinx-copybutton
 sphinx-remove-toctrees
+pydata-sphinx-theme==0.13.1
