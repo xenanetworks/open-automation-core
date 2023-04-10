@@ -58,7 +58,7 @@ class MesagesPipe:
             stm.put_nowait(None)  # Inform to stop watching
         self.__observer.emit(misc.DISABLED, self.name)
 
-    def transmit(self, msg: Any, *, msg_type: misc.EMsgType = misc.EMsgType.DATA, **meta) -> None:
+    def transmit(self, msg: Any, *, msg_type: misc.EMsgType = misc.EMsgType.DATA, **meta: Any) -> None:
         """Unblocable function"""
         assert not self.__evt.is_set(), "Message pipe is closed"
         message = misc.Message(
