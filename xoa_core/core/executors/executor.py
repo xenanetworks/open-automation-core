@@ -66,7 +66,7 @@ class SuiteExecutor:
     def assign_plugin(self, plugin: PPlugin) -> None:
         self.__test_suite = plugin.create_test_suite(
             state_conditions=self.state_conditions.get_facade(),
-            xoa_out=self.__msg_pipe.get_facade()
+            xoa_out=self.__msg_pipe.get_facade(self.suite_name)
         )
 
     def run(self, observer: TObserver) -> None:
