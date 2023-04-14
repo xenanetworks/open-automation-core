@@ -1,11 +1,10 @@
+from __future__ import annotations
 import asyncio
 import contextlib
 from functools import partialmethod
 from typing import (
     Any,
     Final,
-    Dict,
-    Optional,
 )
 
 from xoa_core.core.generic_types import TObserver
@@ -21,7 +20,7 @@ class MesagesPipe:
         self.__queue: "asyncio.Queue[misc.Message]" = asyncio.Queue()
         self.__observer = observer
         self.__lock = asyncio.Lock()
-        self.__push_streams: Dict[str, asyncio.Queue[Optional["misc.Message"]]] = {}
+        self.__push_streams: dict[str, asyncio.Queue["misc.Message" | None]] = {}
         self.__procesor = asyncio.create_task(
             self.__worker(),
             name=f"MessagesPipe[{self.name}]"

@@ -4,7 +4,6 @@ from typing import (
     Any,
 )
 from enum import Enum
-import typing
 from pydantic import BaseModel
 
 DISABLED = 1
@@ -62,7 +61,7 @@ class PipeFacade:
         self.__transmit = transmit
         self.__suite_name = suite_name
 
-    def send_statistics(self, data: typing.Union[typing.Dict, "BaseModel"]) -> None:
+    def send_statistics(self, data: dict[str, Any] | "BaseModel") -> None:
         self.__transmit(data, msg_type=EMsgType.STATISTICS, suite_name=self.__suite_name)
 
     def send_progress(self, current: int, total: int = 100) -> None:
