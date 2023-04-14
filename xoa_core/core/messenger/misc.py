@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import (
+    Dict,
+    Optional,
     Protocol,
     Any,
 )
@@ -20,14 +22,14 @@ class EMsgType(Enum):
 
 class Message(BaseModel):
     pipe_name: str
-    meta: dict[str, Any] = {}
+    meta: Dict[str, Any] = {}
     type: EMsgType = EMsgType.DATA
     payload: Any
 
 
 class StatePayload(BaseModel):
-    state: str | None
-    old_state: str | None
+    state: Optional[str]
+    old_state: Optional[str]
 
 
 class Progress(BaseModel):
