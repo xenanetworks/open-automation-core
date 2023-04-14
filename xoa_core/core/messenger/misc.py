@@ -1,5 +1,5 @@
+from __future__ import annotations
 from typing import (
-    Optional,
     Protocol,
     Any,
 )
@@ -27,8 +27,13 @@ class Message(BaseModel):
 
 
 class StatePayload(BaseModel):
-    state: Optional[str]
-    old_state: Optional[str]
+    state: str | None
+    old_state: str | None
+
+
+class Progress(BaseModel):
+    current: int
+    total: int
 
 
 class TransmitFunc(Protocol):
@@ -42,7 +47,7 @@ class PipeStateFacade:
     def __init__(self, transmit: "TransmitFunc") -> None:
         self.__transmit = transmit
 
-    def __call__(self, state: Optional[str], old_state: Optional[str]) -> None:
+    def __call__(self, state: str | None, old_state: str | None) -> None:
         data = StatePayload(
             state=state,
             old_state=old_state
@@ -60,7 +65,11 @@ class PipeFacade:
     def send_statistics(self, data: typing.Union[typing.Dict, "BaseModel"]) -> None:
         self.__transmit(data, msg_type=EMsgType.STATISTICS, suite_name=self.__suite_name)
 
-    def send_progress(self, progress: int) -> None:
+    def send_progress(self, current: int, total: int = 100) -> None:
+        progress = Progress(
+            current=current,
+            total=total
+        )
         self.__transmit(progress, msg_type=EMsgType.PROGRESS, suite_name=self.__suite_name)
 
     def send_warning(self, warning: Exception) -> None:

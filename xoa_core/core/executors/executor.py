@@ -5,26 +5,23 @@ import typing
 from xoa_core.core.generic_types import (
     TObserver,
     TMesagesPipe,
-    PipeFacade
 )
 if typing.TYPE_CHECKING:
     from xoa_core.types import PluginAbstract
+    from xoa_core.core.plugin_abstract import (
+        PStateConditionsFacade,
+        PPipeFacade
+    )
 
 from .executor_info import ExecutorInfo
 from . import exceptions
 from ._events import Event
 from .executor_state import ExecutorState
-from .executor_state_conditions import (
-    StateConditions,
-    StateConditionsFacade
-)
+from .executor_state_conditions import StateConditions
 
 
 class PPlugin(typing.Protocol):
-    def create_test_suite(self, state_conditions: "StateConditionsFacade", xoa_out: "PipeFacade") -> "PluginAbstract": ...  # noqa: E704
-
-
-# TODO: Need to improve attributes creation in this class
+    def create_test_suite(self, state_conditions: "PStateConditionsFacade", xoa_out: "PPipeFacade") -> "PluginAbstract": ...  # noqa: E704
 
 
 class SuiteExecutor:

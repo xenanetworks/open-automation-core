@@ -18,16 +18,16 @@ DT = typing.TypeVar("DT", bound="BaseModel")
 
 
 class TransmitFunc(typing.Protocol):
-    def __call__(self, msg: typing.Any, *, msg_type: "Enum") -> None: ...  # noqa: E704
+    def __call__(self, msg: typing.Any, *, msg_type: "Enum", **meta) -> None: ...  # noqa: E704
 
 
 class PPipeFacade(typing.Protocol):
-    def __init__(self, transmit: "TransmitFunc") -> None: ...  # noqa: E704
+    def __init__(self, transmit: "TransmitFunc", suite_name: str) -> None: ...  # noqa: E704
 
     def send_statistics(self, data: typing.Union[typing.Dict, "BaseModel"]) -> None:
         """Method used for push statistics data into the messages pipe for future distribution"""
 
-    def send_progress(self, progress: int) -> None:
+    def send_progress(self, current: int, total: int) -> None:
         """Method used for push current progress value into the messages pipe for future distribution"""
 
     def send_warning(self, warning: Exception) -> None:
