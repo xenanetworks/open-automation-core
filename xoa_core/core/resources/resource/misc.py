@@ -36,7 +36,7 @@ def get_tester_inst(props: Credentials, username: str = "xoa-manager", debug=Fal
         username=username,
         password=props.password.get_secret_value(),
         port=props.port,
-        debug=debug,
+        enable_logging=debug,
     ) if tester_type else None
 
 

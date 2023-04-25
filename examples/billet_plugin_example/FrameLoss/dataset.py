@@ -67,8 +67,8 @@ class FrameLossConfig(BaseModel):
 
 
 class PortConfig(BaseModel):
-    transmitter: str
-    receaver: str
+    transmitter: int
+    receaver: int
 
 
 class FrameLossModel(BaseModel):

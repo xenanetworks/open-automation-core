@@ -59,7 +59,7 @@ class PluginAbstract(ABC, typing.Generic[DT]):
         "state_conditions": """Facade contains methods which can help pause or stop Plugin execution.""",
         "xoa_out": """Facade for transmit messages to user.""",
         "testers": """Dictionary of <TESTER_ID>: <TESTER_INSTANCE>""",
-        "port_identities": """PortIdentities a dictionary of <SLOT_ID>: <PortIdentity>""",
+        "port_identities": """PortIdentities a list where positional index is <SLOT_ID> and item is <PortIdentity>""",
         "cfg": """Test-Suite configuration model defined by plugin."""
     }
 
@@ -71,7 +71,7 @@ class PluginAbstract(ABC, typing.Generic[DT]):
         self.testers = testers
         """Dictionary of <TESTER_ID>: <TESTER_INSTANCE>"""
         self.port_identities = params.port_identities
-        """PortIdentities a dictionary of <SLOT_ID>: <PortIdentity>"""
+        """PortIdentities a list where positional index is <SLOT_ID> and item is <PortIdentity>"""
         self.cfg: DT = typing.cast(DT, params.config)
         """Test configuration model defined by plugin."""
         self.prepare()

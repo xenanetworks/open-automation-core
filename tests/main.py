@@ -1,16 +1,16 @@
 from __future__ import annotations
+import asyncio
+import json
 import sys
 import os
+from contextlib import suppress
 from typing import Any
 from pprint import pp
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import asyncio
-import json
-from contextlib import suppress
-from xoa_core import controller
-from xoa_core import types
+from xoa_core import controller  # noqa: E402
+from xoa_core import types  # noqa: E402
 
 
 def bprint(*args):
@@ -47,9 +47,8 @@ async def playground():
     await add_testers(ctrl, new_testers)
 
     test_config = load_test_config(TEST_CONFIG_PATH)
-    id = ctrl.start_test_suite("RFC-2544[Frame Loss]", test_config)
-    print(id)
-    async for msg in ctrl.listen_changes(id, _filter={types.EMsgType.STATISTICS}):
+    id = ctrl.start_test_suite("RFC-2544[Frame Loss]", test_config, debug_connection=False)
+    async for msg in ctrl.listen_changes(id):
         pp(msg.dict(), indent=2, width=80)
 
 
