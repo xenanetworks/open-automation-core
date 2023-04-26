@@ -72,6 +72,7 @@ class Resource:
         self.__observer.emit(const.DISCONNECTED, self.info())
         if self.keep_disconnected:
             return None
+        self.tester = self.__get_tester_inst()
         for retry in range(5):
             await asyncio.sleep(delay=retry * 2)
             try:

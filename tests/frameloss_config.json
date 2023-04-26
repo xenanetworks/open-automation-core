@@ -2,12 +2,12 @@
     "username": "frame_loss",
     "port_identities": [
         {
-            "tester_id": "2906f8d041e9fd07191d6a37ef5785b2",
+            "tester_id": "fb30dd41b077fb502bd23a0b95566dd0",
             "module_index": 1,
             "port_index": 0
         },
         {
-            "tester_id": "2906f8d041e9fd07191d6a37ef5785b2",
+            "tester_id": "fb30dd41b077fb502bd23a0b95566dd0",
             "module_index": 1,
             "port_index": 1
         }
