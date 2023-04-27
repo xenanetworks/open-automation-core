@@ -86,6 +86,10 @@ class Resource:
     def __on_data_changed(self) -> None:
         self.__observer.emit(const.CHANGED, self.info())
 
+    @property
+    def is_connected(self) -> bool:
+        return self.tester is not None and self.tester.session.is_online
+
     async def connect(self) -> None:
         if self.tester.session.is_online:
             raise exceptions.IsConnectedError(self.id)
