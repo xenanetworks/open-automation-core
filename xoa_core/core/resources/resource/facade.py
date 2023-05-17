@@ -72,6 +72,7 @@ class Resource:
         self.__observer.emit(const.DISCONNECTED, self.info())
         if self.keep_disconnected:
             return None
+        self.tester = self.__get_tester_inst()
         for retry in range(5):
             await asyncio.sleep(delay=retry * 2)
             try:
@@ -84,6 +85,10 @@ class Resource:
 
     def __on_data_changed(self) -> None:
         self.__observer.emit(const.CHANGED, self.info())
+
+    @property
+    def is_connected(self) -> bool:
+        return self.tester is not None and self.tester.session.is_online
 
     async def connect(self) -> None:
         if self.tester.session.is_online:

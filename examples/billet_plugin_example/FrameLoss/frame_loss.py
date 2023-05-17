@@ -66,5 +66,6 @@ class FrameLossTest(PluginAbstract["FrameLossModel"]):
                     self.calc_progress(
                         current_props.packet_size,
                         current_props.iteration_number
-                    )
+                    ),
+                    current_props.iteration_number
                 )

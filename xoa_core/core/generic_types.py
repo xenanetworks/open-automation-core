@@ -45,7 +45,7 @@ class TMesagesPipe(Protocol):
     async def _free_stream(self, key: str) -> None: ...  # noqa: E704
     async def disable(self) -> None: ...  # noqa: E704
     def transmit(self, msg: Any, *, msg_type: EMsgType = EMsgType.DATA) -> None: ...  # noqa: E704
-    def get_facade(self) -> PipeFacade: ...  # noqa: E704
+    def get_facade(self, suite_name: str) -> PipeFacade: ...  # noqa: E704
     def get_state_facade(self) -> PipeStateFacade: ...  # noqa: E704
     transmit_warn: "partialmethod"
     transmit_err: "partialmethod"

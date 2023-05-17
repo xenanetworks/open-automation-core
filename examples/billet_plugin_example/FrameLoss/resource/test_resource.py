@@ -22,17 +22,17 @@ class TestResource:
         self.tid = tid
 
         self.traffic = Traffic(port)
-        self.__sync_status = enums.SyncStatus(self.port.info.sync_status)
-        self.__reservation_status = enums.ReservedStatus(self.port.info.reservation)
+        self.__sync_status = self.port.info.sync_status
+        self.__reservation_status = self.port.info.reservation
 
         self.port.on_reservation_change(self.__on_reservation_status)
         self.port.on_receive_sync_change(self.__on_sync_change)
 
     async def __on_sync_change(self, port, v) -> None:
-        self.__sync_status = enums.SyncStatus(v.sync_status)
+        self.__sync_status = v.sync_status
 
     async def __on_reservation_status(self, port: "ports.GenericL23Port", v) -> None:
-        self.__reservation_status = enums.ReservedStatus(v.status)
+        self.__reservation_status = v.status
 
     def __await__(self):
         return self.__prepare().__await__()

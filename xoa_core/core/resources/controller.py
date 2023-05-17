@@ -49,7 +49,8 @@ class ResourcesController:
     async def remove_tester(self, id: TesterID) -> None:
         resource = await self._pool.extract(id)
         await self.__store.delete(resource.id)
-        await resource.disconnect()
+        if resource.is_connected:
+            await resource.disconnect()
 
     async def configure_tester(self, id: TesterID, config: dict[str, Any]) -> None:
         """ User Apply Changes """

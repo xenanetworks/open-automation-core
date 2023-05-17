@@ -1,16 +1,16 @@
 from __future__ import annotations
+import asyncio
+import json
 import sys
 import os
+from contextlib import suppress
 from typing import Any
 from pprint import pp
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import asyncio
-import json
-from contextlib import suppress
-from xoa_core import controller
-from xoa_core import types
+from xoa_core import controller  # noqa: E402
+from xoa_core import types  # noqa: E402
 
 
 def bprint(*args):
@@ -37,7 +37,8 @@ def load_test_config(file_path: str) -> dict[str, Any]:
 async def playground():
     new_testers = [
         # types.Credentials( product=types.EProductType.VALKYRIE, host="87.61.110.114"),
-        types.Credentials(product=types.EProductType.VALKYRIE, host="192.168.1.198"),
+        # types.Credentials(product=types.EProductType.VALKYRIE, host="192.168.1.198"),
+        types.Credentials(product=types.EProductType.VALKYRIE, host="demo.xenanetworks.com"),
         # types.Credentials( product=types.EProductType.VALKYRIE, host="192.168.1.197"),
         # types.Credentials( product=types.EProductType.VALKYRIE, host="87.61.110.118"),
     ]
@@ -46,10 +47,11 @@ async def playground():
     ctrl.register_lib(LIB_PATH)
     await add_testers(ctrl, new_testers)
 
+    # print(await ctrl.list_testers_info())
+
     test_config = load_test_config(TEST_CONFIG_PATH)
-    id = ctrl.start_test_suite("RFC-2544[Frame Loss]", test_config)
-    print(id)
-    async for msg in ctrl.listen_changes(id, _filter={types.EMsgType.STATISTICS}):
+    id = ctrl.start_test_suite("RFC-2544[Frame Loss]", test_config, debug_connection=True)
+    async for msg in ctrl.listen_changes(id):
         pp(msg.dict(), indent=2, width=80)
 
 

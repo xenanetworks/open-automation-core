@@ -1,5 +1,6 @@
+from __future__ import annotations
 import asyncio
-from typing import Dict, TypeVar
+from typing import Dict, Protocol, TypeVar
 from xoa_driver import testers as driver_testers
 from xoa_driver import modules
 from .test_resource import TestResource
@@ -9,13 +10,23 @@ from .. import exceptions
 T = TypeVar("T", bound="ResourcesManager")
 
 
+class PortIdnt(Protocol):
+    tester_id: str
+    module_index: int
+    port_index: int
+
+    @property
+    def name(self) -> str:
+        ...
+
+
 class ResourcesManager:
     __slots__ = ("__testers", "__resources", "__port_identities", "__port_mapping")
 
-    def __init__(self, testers: Dict[str, driver_testers.GenericAnyTester], port_identities, port_mapping) -> None:
+    def __init__(self, testers: Dict[str, driver_testers.GenericAnyTester], port_identities: list[PortIdnt], port_mapping) -> None:
         self._validate_tester_type(testers.values(), driver_testers.L23Tester)
         self.__testers: Dict[str, driver_testers.L23Tester] = testers  # type: ignore
-        self.__resources: Dict[str, "TestResource"] = {}
+        self.__resources: Dict[int, "TestResource"] = {}
         self.__port_identities = port_identities
         self.__port_mapping = port_mapping
 
@@ -26,7 +37,7 @@ class ResourcesManager:
 
     async def setup(self):
         await asyncio.gather(*self.__testers.values())
-        for tid, (pid, port_identity) in enumerate(self.__port_identities.items()):
+        for pid, port_identity in enumerate(self.__port_identities):
             module = self.__testers[port_identity.tester_id].modules.obtain(port_identity.module_index)
             if isinstance(module, modules.ModuleChimera):
                 raise exceptions.WrongModuleTypeError(module)
@@ -35,7 +46,7 @@ class ResourcesManager:
             self.__resources[pid] = await TestResource(
                 port=port,
                 port_name=port_identity.name,
-                tid=tid,
+                tid=pid,
             )
         await self.__map_pairs()
 
@@ -49,8 +60,11 @@ class ResourcesManager:
     def __iter__(self):
         return iter(self.__resources.values())
 
-    def __getitem__(self, key: str) -> "TestResource":
+    def __getitem__(self, key: int) -> "TestResource":
         return self.__resources[key]
+
+    def __setitem__(self, key: int, value: "TestResource") -> None:
+        self.__resources[key] = value
 
     async def cleanup(self) -> None:
         if not self.__testers:

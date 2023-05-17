@@ -21,7 +21,7 @@ class Stream:
     def header(self) -> str:
         """Prepare Packet Header data"""
         port_mac = self.__resource.mac_address
-        return f"0x{port_mac.to_hexstring()}{self.__peer_mac.to_hexstring()}FFFF"
+        return f"{port_mac.to_hexstring()}{self.__peer_mac.to_hexstring()}FFFF"
 
     async def setup_stream(self) -> None:
         port = self.__resource.port

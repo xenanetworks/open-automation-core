@@ -1,19 +1,17 @@
 {
     "username": "frame_loss",
-    "port_identities": {
-        "p0": {
-            "tester_id": "2906f8d041e9fd07191d6a37ef5785b2",
-            "tester_index": 0,
+    "port_identities": [
+        {
+            "tester_id": "fb30dd41b077fb502bd23a0b95566dd0",
             "module_index": 1,
-            "port_index": 4
+            "port_index": 0
         },
-        "p1": {
-            "tester_id": "2906f8d041e9fd07191d6a37ef5785b2",
-            "tester_index": 0,
+        {
+            "tester_id": "fb30dd41b077fb502bd23a0b95566dd0",
             "module_index": 1,
-            "port_index": 5
+            "port_index": 1
         }
-    },
+    ],
     "config": {
         "packet_size_cfg": {
             "packet_size": [
@@ -40,12 +38,12 @@
         },
         "port_mapping": [
             {
-                "transmitter": "p0",
-                "receaver": "p1"
+                "transmitter": 0,
+                "receaver": 1
             },
             {
-                "transmitter": "p1",
-                "receaver": "p0"
+                "transmitter": 1,
+                "receaver": 0
             }
         ]
     }
