@@ -6,6 +6,6 @@ sphinx_rtd_theme
 readthedocs-sphinx-search
 sphinx-inline-tabs
 loguru
-sphinx-book-theme
+furo
 sphinx-copybutton
 sphinx-remove-toctrees
