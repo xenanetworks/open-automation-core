@@ -39,6 +39,7 @@ class ModuleModel:
     is_chimera: bool = False
     can_local_time_adjust: bool = False
     max_clock_ppm: int | None = None
+    serial_number: int | None = None
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -52,6 +53,7 @@ class ModuleModel:
             model=module.info.model,
             reserved_by=module.info.reserved_by,
             **await _prepare_values(module),
+            serial_number=(await module.serial_number.get()).serial_number,
             ports=tuple(
                 await asyncio.gather(*[
                     PortModel.from_port(module_id, port, notifier)
@@ -89,3 +91,4 @@ class ModuleInfoModel(BaseModel):
     is_chimera: bool
     can_local_time_adjust: bool
     max_clock_ppm: Optional[int]
+    serial_number: int | None = None

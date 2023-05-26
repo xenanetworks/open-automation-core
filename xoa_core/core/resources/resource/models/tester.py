@@ -46,6 +46,7 @@ class TesterModel:
     max_name_len: int = 0
     max_comment_len: int = 0
     max_password_len: int = 0
+    serial_number: int | None = None
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -67,6 +68,7 @@ class TesterModel:
         self.max_name_len = cpb.max_name_len
         self.max_comment_len = cpb.max_name_len
         self.max_password_len = cpb.max_name_len
+        self.serial_number = tester.info.serial_number
         self.modules = tuple(
             await asyncio.gather(*[
                 ModuleModel.from_module(self.id, module, notifier)
@@ -92,3 +94,4 @@ class TesterInfoModel(BaseModel):
     max_name_len: int
     max_comment_len: int
     max_password_len: int
+    serial_number: int | None = None
