@@ -34,6 +34,7 @@ class ModuleModel:
     model: str
     reserved_by: str
     ports: tuple[PortModel, ...]
+    serial_number: int
     name: str = " - "
     can_media_config: bool = False
     is_chimera: bool = False
@@ -42,6 +43,9 @@ class ModuleModel:
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
+
+    async def on_serial_number_change(self, _, value) -> None:
+        self.serial_number = value.serial_number
 
     @classmethod
     async def from_module(cls: Type[Self], tester_id: TesterID, module: "modules.GenericAnyModule", notifier: Callable) -> Self:
@@ -52,6 +56,7 @@ class ModuleModel:
             model=module.info.model,
             reserved_by=module.info.reserved_by,
             **await _prepare_values(module),
+            serial_number=(await module.serial_number.get()).serial_number,
             ports=tuple(
                 await asyncio.gather(*[
                     PortModel.from_port(module_id, port, notifier)
@@ -60,6 +65,7 @@ class ModuleModel:
             )
         )
         module.on_reserved_by_change(post_notify(notifier)(inst.on_evt_reserved_by))
+        module.on_serial_number_change(post_notify(notifier)(inst.on_serial_number_change))
         return inst
 
 
@@ -89,3 +95,4 @@ class ModuleInfoModel(BaseModel):
     is_chimera: bool
     can_local_time_adjust: bool
     max_clock_ppm: Optional[int]
+    serial_number: int
