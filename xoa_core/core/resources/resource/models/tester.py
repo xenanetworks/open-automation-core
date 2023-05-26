@@ -46,7 +46,7 @@ class TesterModel:
     max_name_len: int = 0
     max_comment_len: int = 0
     max_password_len: int = 0
-    serial_number: int | None = None
+    serial_number: int = 0
 
     async def on_evt_reserved_by(self, _, value) -> None:
         self.reserved_by = value.username
@@ -94,4 +94,4 @@ class TesterInfoModel(BaseModel):
     max_name_len: int
     max_comment_len: int
     max_password_len: int
-    serial_number: int | None = None
+    serial_number: int
