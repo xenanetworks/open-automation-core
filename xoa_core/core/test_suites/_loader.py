@@ -72,7 +72,6 @@ def __read_meta(path: str) -> "PluginMeta":
         data = yaml.load(outfile, Loader=yaml.SafeLoader)
         return PluginMeta(**data)
 
-
 def __register_path(path: str | Path) -> None:
     str_path = str(path)
     if str_path in sys.path:
