@@ -7,7 +7,7 @@ def is_tester(inst) -> bool:
     cmp_types = (
         testers.L23Tester,
         testers.L47Tester,
-        testers.L47VeTester,
+        testers.L47VeTester
     )
     return isinstance(inst, cmp_types)
 

@@ -3,9 +3,9 @@ from . import exceptions
 
 
 class StateConditionsFacade:
-    __slots__ = ("__wait_if_paused", "__stop_if_stopped",)
+    __slots__ = ("__wait_if_paused", "__stop_if_stopped")
 
-    def __init__(self, wait_if_paused, stop_if_stopped) -> None:
+    def __init__(self, wait_if_paused, stop_if_stopped) -> None:  # TODO: Add type notations
         self.__wait_if_paused = wait_if_paused
         self.__stop_if_stopped = stop_if_stopped
 

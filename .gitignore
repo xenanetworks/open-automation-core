@@ -25,4 +25,5 @@
 *.tar.bz2
 .env
 tasks.py
+*.db
 

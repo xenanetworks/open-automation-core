@@ -1,10 +1,8 @@
+from __future__ import annotations
 import asyncio
 import uuid
 import contextlib
 from typing import (
-    Optional,
-    Tuple,
-    Dict,
     Set,
     AsyncGenerator
 )
@@ -13,7 +11,7 @@ from .pipe import MesagesPipe
 from . import misc
 
 
-async def _get_from_queue(queue: "asyncio.Queue[Optional[misc.Message]]") -> AsyncGenerator[Optional[misc.Message], None]:
+async def _get_from_queue(queue: asyncio.Queue[misc.Message | None]) -> AsyncGenerator[misc.Message | None, None]:
     while True:
         msg = await queue.get()
         try:
@@ -26,7 +24,7 @@ class OutMessagesHandler:
     __slots__ = ("__pipes", "__senders", "__observer",)
 
     def __init__(self) -> None:
-        self.__pipes: Dict[str, MesagesPipe] = dict()
+        self.__pipes: dict[str, MesagesPipe] = dict()
         self.__observer = observer.SimpleObserver()
         self.__observer.subscribe(misc.DISABLED, self.__on_pipe_disabled)
 
@@ -44,14 +42,14 @@ class OutMessagesHandler:
             return None
         await self.__pipes[name].disable()
 
-    def avaliable_pipes(self) -> Tuple[str, ...]:
+    def avaliable_pipes(self) -> tuple[str, ...]:
         return tuple(self.__pipes.keys())
 
     async def __on_pipe_disabled(self, name: str) -> None:
         del self.__pipes[name]
 
     @contextlib.asynccontextmanager
-    async def __user_stream(self, queue: "asyncio.Queue[Optional[misc.Message]]", *names: str) -> AsyncGenerator[None, None]:
+    async def __user_stream(self, queue: asyncio.Queue[misc.Message | None], *names: str) -> AsyncGenerator[None, None]:
         key = str(uuid.uuid4())
         pipes = (self.__pipes[name] for name in names)
         await asyncio.gather(*[pipe._add_stream(key, queue) for pipe in pipes])
@@ -60,10 +58,10 @@ class OutMessagesHandler:
         finally:
             await asyncio.gather(*[pipe._free_stream(key) for pipe in pipes])
 
-    async def changes(self, *names: str, _filter: Optional[Set["misc.EMsgType"]] = None) -> AsyncGenerator[misc.Message, None]:
+    async def changes(self, *names: str, _filter: Set["misc.EMsgType"] | None = None) -> AsyncGenerator[misc.Message, None]:
         if not all((self.__pipes.get(name) for name in names)):
             return
-        msg_queue: asyncio.Queue[Optional["misc.Message"]] = asyncio.Queue()
+        msg_queue: asyncio.Queue["misc.Message" | None] = asyncio.Queue()
         async with self.__user_stream(msg_queue, *names):
             async for msg in _get_from_queue(msg_queue):
                 if msg is None:

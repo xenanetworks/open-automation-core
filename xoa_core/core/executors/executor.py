@@ -5,25 +5,23 @@ import typing
 from xoa_core.core.generic_types import (
     TObserver,
     TMesagesPipe,
-    PipeFacade
 )
 if typing.TYPE_CHECKING:
     from xoa_core.types import PluginAbstract
+    from xoa_core.core.plugin_abstract import (
+        PStateConditionsFacade,
+        PPipeFacade
+    )
 
+from .executor_info import ExecutorInfo
 from . import exceptions
 from ._events import Event
 from .executor_state import ExecutorState
-from .executor_state_conditions import (
-    StateConditions,
-    StateConditionsFacade
-)
+from .executor_state_conditions import StateConditions
 
 
 class PPlugin(typing.Protocol):
-    def create_test_suite(self, state_conditions: "StateConditionsFacade", xoa_out: "PipeFacade") -> "PluginAbstract":
-        ...
-
-# TODO: Need to improve attributes creation in this class
+    def create_test_suite(self, state_conditions: "PStateConditionsFacade", xoa_out: "PPipeFacade") -> "PluginAbstract": ...  # noqa: E704
 
 
 class SuiteExecutor:
@@ -51,6 +49,13 @@ class SuiteExecutor:
             self.__observer.emit(Event.ERROR, task.get_name(), e)
             raise e
 
+    def get_info(self) -> ExecutorInfo:
+        return ExecutorInfo(
+            id=self.__id,
+            suite_name=self.suite_name,
+            state=self.state.current_state,
+        )
+
     def assign_pipe(self, pipe: "TMesagesPipe") -> None:
         self.__msg_pipe = pipe
         self.state.assign_senders(pipe.get_state_facade())
@@ -58,7 +63,7 @@ class SuiteExecutor:
     def assign_plugin(self, plugin: PPlugin) -> None:
         self.__test_suite = plugin.create_test_suite(
             state_conditions=self.state_conditions.get_facade(),
-            xoa_out=self.__msg_pipe.get_facade()
+            xoa_out=self.__msg_pipe.get_facade(self.suite_name)
         )
 
     def run(self, observer: TObserver) -> None:
