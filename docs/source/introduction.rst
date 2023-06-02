@@ -1,19 +1,21 @@
 Introduction
 ============
 
-Xena OpenAutomation Core (:term:`XOA Core`) is the framework that provides a standardized way for developers and test specialists to develop, integrate, and execute test suites, as well as managing Xena's physical and virtual testers.
+Xena OpenAutomation Core (:term:`XOA Core`) is an open-source test suite framework for network automation and testing. It is designed to host various `XOA Test Suites <https://github.com/xenanetworks/open-automation-test-suites>`_ as plugins, allowing users to create, manage, and run test cases for different network scenarios. The XOA Core framework serves as the foundation for building and executing test suites in the XOA ecosystem.
 
-XOA Core uses `XOA Python API <https://github.com/xenanetworks/open-automation-python-api>`_ as its fundamental driver to communicate with Xena testers. XOA Core also provides a set of standardized interfaces for users to send test configurations, receive test results, receive communication message with testers, as well as manage testers.
+Key features of XOA Core include:
 
-**Test suites are considered as plug-ins in XOA Core**, regardless whether they are developed by Xena or you. XOA Core dynamically loads test suites that are organized in a common structure, and exposes information of those test suites to the user.
+1. Modular architecture: The test suite framework employs a modular architecture, enabling users to develop and run different test suites as plugins.
 
-We open the source code of XOA Core to empower users with the freedom to tailor the code to their unique needs, develop and integrate their own test suites, not only the Xena-developed test suites.
+2. Test Suite execution: XOA Core supports both local and remote test suite execution. Users can execute test suites on their local machines or on remote testbeds through the XOA CLI or Web GUI.
 
-To keep the repository easy to manage, **we keep XOA test suites in another repository**: `XOA Test Suites <https://github.com/xenanetworks/open-automation-test-suites>`_.
+3. Test Case management: XOA Core provides tools for managing test cases, including creating, updating, and deleting them. Users can also organize test cases using tags and execute them in parallel or sequentially.
 
-XOA Test Suite Plugin Library is the public repository includes multiple automated benchmarking tests and compliance tests, such as RFC 2544, RFC 2889, RFC 3918, and all that will be published in future releases.
+4. Extensibility: The framework is designed to be extensible, allowing users to develop custom test suites and plugins to address specific testing requirements.
 
-To use the test methodologies in XOA Test Suite Plugin Library, you need to install XOA Core.
+5. Logging and reporting: XOA Core offers built-in logging and reporting functionality, generating detailed test reports to help users analyze test results and identify issues.
+
+The `official documentation <https://docs.xenanetworks.com/projects/xoa-core>`_ provides a comprehensive guide on how to install, configure, and use XOA Core. It covers topics such as setting up the environment, creating test suites, executing test cases, and analyzing test results. The documentation also includes a reference for XOA Core's API and example test suites to help users get started with their test automation projects.
 
 .. image:: ./_static/OPENAUTOMATION-2554.png
     :width: 150
