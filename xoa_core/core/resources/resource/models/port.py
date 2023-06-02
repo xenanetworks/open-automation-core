@@ -1,43 +1,46 @@
-from typing import (
-    Tuple,
-    Optional,
-    Callable,
-    TypeVar,
-    Type,
-    Dict,
-    Any,
-)
+from __future__ import annotations
+
 from dataclasses import (
     dataclass,
     field,
 )
-from xoa_driver import ports
-from xoa_driver import enums
-from xoa_driver import utils
-
-from xoa_core.core.utils import decorators
-
-P = TypeVar("P", bound="PortModel")
+from typing import (
+    Any,
+    Callable,
+    Optional,
+    Tuple,
+    Type,
+)
+from pydantic import BaseModel
+from typing_extensions import Self
+from xoa_driver import (
+    enums,
+    ports,
+    utils,
+)
+from .types import ModuleID, PortID
+from .__decorator import post_notify
 
 
 @dataclass
 class PortModel:
-    id: int
+    id: PortID
+    index: int
     model: str
     reserved_by: str
-    sync_status: Optional[bool] = None
-    traffic_state: Optional[enums.TrafficOnOff] = None
-    max_speed: Optional[int] = None
-    max_speed_reduction: Optional[int] = None
-    min_interframe_gap: Optional[int] = None
-    max_interframe_gap: Optional[int] = None
-    max_streams_per_port: Optional[int] = None
-    packet_limit: Optional[int] = None
-    min_packet_length: Optional[int] = None
-    max_packet_length: Optional[int] = None
-    max_header_length: Optional[int] = None
-    max_protocol_segments: Optional[int] = None
-    max_repeat: Optional[int] = None
+    sync_status: bool | None = None
+    traffic_state: enums.TrafficOnOff | None = None
+    max_speed: int | None = None
+    max_speed_reduction: int | None = None
+    min_interframe_gap: int | None = None
+    max_interframe_gap: int | None = None
+    max_streams_per_port: int | None = None
+    packet_limit: int | None = None
+    min_packet_length: int | None = None
+    max_packet_length: int | None = None
+    max_header_length: int | None = None
+    max_protocol_segments: int | None = None
+    max_repeat: int | None = None
     can_set_autoneg: bool = False
     can_tcp_checksum: bool = False
     can_udp_checksum: bool = False
@@ -48,10 +51,10 @@ class PortModel:
     can_anlt: bool = False
     is_chimera: bool = False
     can_brr: bool = False
-    speed_modes_supported: Tuple["enums.PortSpeedMode", ...] = field(default_factory=tuple)
-    speed_mode_current: Optional[enums.PortSpeedMode] = None
-    speed_current: Optional[int] = None
-    speed_reduction: Optional[int] = None
+    speed_modes_supported: tuple["enums.PortSpeedMode", ...] = field(default_factory=tuple)
+    speed_mode_current: enums.PortSpeedMode | None = None
+    speed_current: int | None = None
+    speed_reduction: int | None = None
 
     async def on_evt_traffic_state(self, _, value) -> None:
         self.traffic_state = enums.TrafficOnOff(value.on_off)
@@ -63,23 +66,24 @@ class PortModel:
         self.reserved_by = value.username
 
     @classmethod
-    async def from_port(cls: Type[P], port: "ports.GenericAnyPort", notifier: Callable) -> P:
+    async def from_port(cls: Type[Self], module_id: ModuleID, port: "ports.GenericAnyPort", notifier: Callable) -> Self:
         inst = cls(
-            id=port.kind.port_id,
+            id=PortID(f"{module_id}-{port.kind.port_id}"),
+            index=port.kind.port_id,
             model=port.info.interface,
             reserved_by=port.info.reserved_by,
             sync_status=getattr(port.info, "sync_status", None),
             traffic_state=getattr(port.info, "traffic_state", None),
             **await _prepare_values(port),
         )
-        port.on_reserved_by_change(decorators.post_notify(notifier)(inst.on_evt_reserved_by))
+        port.on_reserved_by_change(post_notify(notifier)(inst.on_evt_reserved_by))
         if on_traffic_change := getattr(port, 'on_traffic_change', None):
-            on_traffic_change(decorators.post_notify(notifier)(inst.on_evt_traffic_state))
-        port.on_receive_sync_change(decorators.post_notify(notifier)(inst.on_evt_sync_status))
+            on_traffic_change(post_notify(notifier)(inst.on_evt_traffic_state))
+        port.on_receive_sync_change(post_notify(notifier)(inst.on_evt_sync_status))
         return inst
 
 
-async def _prepare_values(port: "ports.GenericAnyPort") -> Dict[str, Any]:
+async def _prepare_values(port: "ports.GenericAnyPort") -> dict[str, Any]:
     p_vals = dict()
     if not isinstance(port, (ports.PortL47, ports.PortL23VE)):
         if not isinstance(port, ports.PortChimera):
@@ -113,7 +117,41 @@ async def _prepare_values(port: "ports.GenericAnyPort") -> Dict[str, Any]:
         p_vals["can_mdi_mdix"] = bool(cpb.can_mdi_mdix)
         p_vals["can_sync_traffic_start"] = bool(cpb.can_sync_traffic_start)
         p_vals["can_fec"] = bool(cpb.can_fec)
-        p_vals["can_anlt"] = cpb.can_set_link_train and cpb.can_auto_neg_base_r
+        p_vals["can_anlt"] = bool(cpb.can_set_link_train and cpb.can_auto_neg_base_r)
         p_vals["is_chimera"] = bool(cpb.is_chimera)
         p_vals["can_brr"] = getattr(port, "is_brr_mode_supported", False)
     return p_vals
+
+
+class PortInfoModel(BaseModel):
+    id: PortID
+    index: int
+    model: str
+    reserved_by: str
+    sync_status: Optional[bool]
+    traffic_state: Optional[enums.TrafficOnOff]
+    max_speed: Optional[int]
+    max_speed_reduction: Optional[int]
+    min_interframe_gap: Optional[int]
+    max_interframe_gap: Optional[int]
+    max_streams_per_port: Optional[int]
+    packet_limit: Optional[int]
+    min_packet_length: Optional[int]
+    max_packet_length: Optional[int]
+    max_header_length: Optional[int]
+    max_protocol_segments: Optional[int]
+    max_repeat: Optional[int]
+    can_set_autoneg: bool
+    can_tcp_checksum: bool
+    can_udp_checksum: bool
+    can_micro_tpld: bool
+    can_mdi_mdix: bool
+    can_sync_traffic_start: bool
+    can_fec: bool
+    can_anlt: bool
+    is_chimera: bool
+    can_brr: bool
+    speed_modes_supported: Tuple["enums.PortSpeedMode", ...]
+    speed_mode_current: Optional[enums.PortSpeedMode]
+    speed_current: Optional[int]
+    speed_reduction: Optional[int]

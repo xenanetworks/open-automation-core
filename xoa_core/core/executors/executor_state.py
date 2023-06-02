@@ -17,7 +17,7 @@ def no_sender(status: Optional[str], old_status: Optional[str]) -> None:
 
 
 class ExecutorState:
-    __slots__ = ("__state", "__sender", "__sender_is_set",)
+    __slots__ = ("__state", "__sender", "__sender_is_set")
 
     def __init__(self) -> None:
         self.__state = EState.STOPPED
@@ -29,6 +29,10 @@ class ExecutorState:
             return None
         self.__sender = sender
         self.__sender_is_set = True
+
+    @property
+    def current_state(self) -> str:
+        return self.__state.value
 
     @property
     def is_stoped(self) -> bool:

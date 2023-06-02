@@ -6,7 +6,7 @@ import oyaml as yaml
 import importlib.util
 from typing import (
     TYPE_CHECKING,
-    Optional, 
+    Optional,
     Type,
     Generator,
 )
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 from .datasets import (
-    PluginMeta, 
+    PluginMeta,
     PluginData,
     build_test_params
 )
@@ -26,6 +26,7 @@ from ..plugin_abstract import PluginAbstract
 
 
 META_FILE_NAME = 'meta.yml'
+
 
 def __load_module(path: str) -> Generator["ModuleType", None, None]:
     """Load module from path to the var"""
@@ -36,11 +37,12 @@ def __load_module(path: str) -> Generator["ModuleType", None, None]:
             module_name,
             os.path.join(path, child),
         )
-        if not spec or not spec.loader: 
+        if not spec or not spec.loader:
             continue
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         yield mod
+
 
 def __make_plugin(module_path: str, meta: PluginMeta) -> Optional["PluginData"]:
     """Create plugin model."""
@@ -58,8 +60,8 @@ def __make_plugin(module_path: str, meta: PluginMeta) -> Optional["PluginData"]:
     if not issubclass(model_class, BaseModel):
         raise InvalidPluginError(model_class, BaseModel)
     return PluginData(
-        meta=meta, 
-        entry_class=entry_class, 
+        meta=meta,
+        entry_class=entry_class,
         model_class=build_test_params(model_class)
     )
 
@@ -76,7 +78,8 @@ def __register_path(path: str | Path) -> None:
         return None
     sys.path.append(str_path)
 
-def load_plugin(path: str) -> Generator[PluginData, None, None]:
+
+def load_plugin(path: str | Path) -> Generator[PluginData, None, None]:
     __register_path(path)
     for child in os.listdir(path):
         child_path = os.path.abspath(os.path.join(path, child))

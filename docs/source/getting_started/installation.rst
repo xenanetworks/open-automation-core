@@ -21,7 +21,7 @@ XOA Core requires that you `install Python <https://realpython.com/installing-py
     XOA Core requires Python >= 3.8.
 
 ``pip``
-^^^^^^^
+^^^^^^^^
 
 Make sure ``pip`` is installed on your system. ``pip`` is the `package installer for Python <https://packaging.python.org/guides/tool-recommendations/>`_ . You can use it to install packages from the `Python Package Index <https://pypi.org/>`_  and other indexes.
 

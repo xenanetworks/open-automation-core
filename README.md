@@ -1,4 +1,4 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-core) [![PyPI](https://img.shields.io/pypi/v/xoa-core)](https://pypi.python.org/pypi/xoa-core) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-core) [![Documentation Status](https://readthedocs.org/projects/xena-openautomation-core/badge/?version=latest)](https://xena-openautomation-core.readthedocs.io/en/latest/?badge=latest)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-core) [![PyPI](https://img.shields.io/pypi/v/xoa-core)](https://pypi.python.org/pypi/xoa-core) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-core) [![Documentation Status](https://readthedocs.org/projects/xena-openautomation-core/badge/?version=stable)](https://xena-openautomation-core.readthedocs.io/en/stable/?badge=stable)
 
 # Xena OpenAutomation Core
 Xena OpenAutomation Core (XOA Core) is an open-source test suite framework for network automation and testing. It is designed to host various [XOA Test Suites](https://github.com/xenanetworks/open-automation-test-suites) as plugins, allowing users to create, manage, and run test cases for different network scenarios. The XOA Core framework serves as the foundation for building and executing test suites in the XOA ecosystem.
@@ -18,7 +18,7 @@ Xena OpenAutomation (XOA) Core is the framework that provides a standardized way
 
 ## Documentation
 The user documentation is hosted:
-[Xena OpenAutomation Core Documentation](https://docs.xoa-core.xenanetworks.com/)
+[Xena OpenAutomation Core Documentation](https://docs.xenanetworks.com/projects/xoa-core)
 
 ## Installation
 

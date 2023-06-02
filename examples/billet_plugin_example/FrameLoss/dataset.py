@@ -1,18 +1,19 @@
 from typing import (
-    Tuple, 
-    Union, 
+    Tuple,
+    Union,
     Iterable,
     Generator
 )
 from operator import attrgetter
 
 from pydantic import (
-    BaseModel, 
+    BaseModel,
     validator,
     conint,
 )
 from . import const
 from . import loop_modes
+
 
 class MacAddress(str):
     def to_hexstring(self):
@@ -20,7 +21,6 @@ class MacAddress(str):
 
     def first_three_bytes(self):
         return self.replace(":", "").replace("-", "").upper()[:6]
-
 
 
 class PacketSizeConfig(BaseModel):
@@ -39,12 +39,12 @@ class FrameLossConfig(BaseModel):
     start_rate: int = 50
     end_rate: int = 100
     step_rate: int = 50
-    iterations: conint(gt=0) = 1 # type: ignore
+    iterations: conint(gt=0) = 1  # type: ignore
     is_used_criteria: bool = False
     acceptable_loss: float = 0
     acceptable_loss_unit: const.AcceptableType = const.AcceptableType.PERCENT
     duration_unit: const.DurationTimeUnit = const.DurationTimeUnit.SECOND
-    duration: int = 10 # seconds
+    duration: int = 10  # seconds
 
     @validator("duration", pre=True, always=True, allow_reuse=True)
     def set_duration(cls, v: int, values) -> int:
@@ -56,7 +56,7 @@ class FrameLossConfig(BaseModel):
                 const.DurationTimeUnit.DAY: 86400,
             }[values["duration_unit"]] * v
         )
-    
+
     @property
     def rate(self) -> range:
         return range(
@@ -65,9 +65,10 @@ class FrameLossConfig(BaseModel):
             self.step_rate,
         )
 
+
 class PortConfig(BaseModel):
-    transmitter: str
-    receaver: str
+    transmitter: int
+    receaver: int
 
 
 class FrameLossModel(BaseModel):
@@ -75,7 +76,7 @@ class FrameLossModel(BaseModel):
     packet_size_cfg: PacketSizeConfig
     frame_loss: FrameLossConfig
     port_mapping: Tuple[PortConfig, ...] = tuple()
-    
+
     def get_test_loop(self) -> Generator[loop_modes.CurrentIterProps, None, None]:
         iterations = range(self.frame_loss.iterations)
         frame_loss_rate = self.frame_loss.rate
@@ -83,7 +84,6 @@ class FrameLossModel(BaseModel):
         loop = {
             const.OuterLoopMode.PKT_SIZE: loop_modes.pkt_size,
             const.OuterLoopMode.ITERATIONS: loop_modes.iterations,
-            
         }.get(self.outer_loop_mode, None)
         if loop is None:
             return
