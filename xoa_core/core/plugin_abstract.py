@@ -27,7 +27,7 @@ class PPipeFacade(typing.Protocol):
     def send_statistics(self, data: typing.Union[typing.Dict, "BaseModel"]) -> None:
         """Method used for push statistics data into the messages pipe for future distribution"""
 
-    def send_progress(self, current: int, total: int = 100, round: int = 0) -> None:
+    def send_progress(self, current: int, total: int = 100, loop: int = 0) -> None:
         """Method used for push current progress value into the messages pipe for future distribution"""
 
     def send_warning(self, warning: Exception) -> None:
