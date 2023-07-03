@@ -40,14 +40,16 @@ class SuiteExecutor:
     def __on_execution_terminated(self, task: "asyncio.Task") -> None:
         if not self.state.is_stoped:
             self.state.set_stop()
+        err = None
+        with contextlib.suppress(asyncio.CancelledError, exceptions.StopPlugin):
+            err = task.exception()
+            if err is not None:
+                self.__msg_pipe.transmit_err(err)
+                self.__observer.emit(Event.ERROR, task.get_name(), err)  # only notify of the Execution manager.
         self.__observer.emit(Event.STOPPED, self.id)
         asyncio.create_task(self.__msg_pipe.disable())  # In rare case raise error but it's not break anything.
-        with contextlib.suppress(asyncio.CancelledError, exceptions.StopPlugin):
-            e = task.exception()
-            if e is None:
-                return None
-            self.__observer.emit(Event.ERROR, task.get_name(), e)
-            raise e
+        if err:
+            raise exceptions.ExecutionError(task.get_name()) from err
 
     def get_info(self) -> ExecutorInfo:
         return ExecutorInfo(
