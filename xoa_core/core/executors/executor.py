@@ -36,6 +36,8 @@ from loguru import logger
 
 logger.add("core.log")
 
+PIPE_CLOSE = 'PIPE_CLOSE'
+
 class MessageFromSubProcess(BaseModel):
     msg_type: EMsgType
     msg: typing.Any
@@ -62,15 +64,6 @@ class RelayXOAOut:
         logger.debug(error)
 
 
-def root_call(suite_executor: "SuiteExecutor"):
-    ts = suite_executor.plugin.create_test_suite(
-        state_conditions=suite_executor.state_conditions.get_facade(),
-        # xoa_out=suite_executor.msg_pipe.get_facade(suite_executor.suite_name)
-        xoa_out=RelayXOAOut(lambda: 1, suite_executor.suite_name)
-    )
-    asyncio.run(ts.start())
-
-
 class ExecuteEvent(Enum):
     PAUSE = 'PAUSE'
     STOP = 'STOP'
@@ -88,7 +81,6 @@ class StateConditions:
         self.continue_event.set()
         self.stop_event = manager.Event()
 
-    @property
     async def wait_if_paused(self) -> None:
         """Wait till user toggle pause state."""
         logger.debug('wait_if_paused')
@@ -123,7 +115,7 @@ class SuiteExecutor:
         self.state = ExecutorState()
         self.state_conditions = StateConditions()
         self.event_pipe_parent, self.event_pipe_child = Pipe()
-        self.message_pipe_parent, self.message_pipe_child = Pipe()
+        self.message_pipe_parent, self.message_pipe_child = Pipe(duplex=False)
 
     @property
     def id(self) -> str:
@@ -160,109 +152,45 @@ class SuiteExecutor:
             xoa_out=self.msg_pipe.get_facade(self.suite_name)
         )
 
-    async def fake_test(self) -> None:
-        logger.debug(self.state_conditions.continue_event.is_set())
-        await asyncio.sleep(10)
-        logger.debug('awake')
-        logger.debug(self.state_conditions.continue_event.is_set())
-
-    async def fake_send_msg(self):
-        count = 0
-        await asyncio.sleep(5)
-        xoa_out = self.msg_pipe.get_facade(self.suite_name)
-        while count < 10:
-            self.message_pipe_child.send(
-                MessageFromSubProcess(msg_type=EMsgType.WARNING, payload=Exception('test'))
-            )
-            await asyncio.sleep(0.1)
-            count += 1
-            if self.event_pipe_child.poll():
-                msg = self.event_pipe_child.recv()
-                logger.debug('*'*40)
-                logger.debug(msg)
-        self.event_pipe_child.close()
-
     def create_test_suite(self):
-        test_suite = self.plugin.create_test_suite(self.state_conditions.get_facade(), xoa_out=RelayXOAOut(self.send_message_from_child, self.suite_name))
+        test_suite = self.plugin.create_test_suite(self.state_conditions.get_facade(), xoa_out=RelayXOAOut(self.child_send_message, self.suite_name))
         return test_suite
 
-    def sub_process_func(self, num: int, state) -> None:
-        xoa_out = self.msg_pipe.get_facade(self.suite_name)
-        logger.debug('sub process run')
-        loop = asyncio.get_event_loop()
-        # loop.run_until_complete(self.fake_test(state, pipe))
-        # loop.run_until_complete(self.__test_suite.start())
-        # asyncio.run(self.fake_test())
-        # asyncio.run(self.__test_suite.start())
-        # asyncio.run(self.fake_send_msg())
-        asyncio.run(self.create_test_suite().start())
-        # relay_state.change_state('stop', True)
-        state.set()
-        logger.debug(state)
-        logger.debug('set stop')
-        state.clear()
-        logger.debug(state)
-        logger.debug('sub process end')
-
-
-    async def wrap_test(self) -> None:
-        # while True:
-        #     xoa_out.send_statistics({'k': time.time()})
-        #     await asyncio.sleep(0.5)
-        manager = Manager()
-        inter_state = manager.Event()
-
-        p = Process(target=self.sub_process_func, args=(333, inter_state), daemon=True)
-        p.start()
-        while p.is_alive():
-            await asyncio.sleep(0.01)
-        else:
-            self.message_pipe_child.close()
-            self.event_pipe_child.close()
-            logger.debug('wrap end')
-            return
-        # await asyncio.sleep(10)
-
-    def send_message_from_child(self, msg: typing.Any, msg_type: EMsgType):
+    def child_send_message(self, msg: typing.Any, msg_type: EMsgType):
         self.message_pipe_child.send(MessageFromSubProcess(msg=msg, msg_type=msg_type))
 
-    async def poll_child_sended_message(self):
+    async def read_child_message(self):
         xoa_out = self.msg_pipe.get_facade(self.suite_name)
         while True:
-            if self.message_pipe_child.closed:
-                break
             if self.message_pipe_parent.poll():
                 msg = self.message_pipe_parent.recv()
+                if msg == PIPE_CLOSE:
+                    break
                 xoa_out.send_statistics(msg)
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.1)
 
     async def test_pause(self):
         await asyncio.sleep(3)
         self.__send_pause_event()
 
+    def exit_subprocess(self, task: typing.Any):
+        self.message_pipe_child.send(PIPE_CLOSE)
+
+    def subprocess(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        ts = loop.create_task(self.create_test_suite().start())
+        ts.add_done_callback(self.exit_subprocess)
+        loop.run_until_complete(ts)
+
+
     def run(self, observer: TObserver) -> None:
         self.__observer = observer
         self.state.set_run()
-
-        # self.__task = asyncio.create_task(
-        #     self.__test_suite.start(),
-        #     name=f"{self.suite_name}[{self.id}]"
-        # )
-        # self.__task.add_done_callback(self.__on_execution_terminated)
-        # inter_state = manager.Event()
-        # p = Process(target=self.ttt, args=(333, inter_state, pipe), daemon=True)
-        # p.start()
-        t = asyncio.create_task(self.wrap_test())
-        t = asyncio.create_task(self.poll_child_sended_message())
-        t.add_done_callback(self.__on_execution_terminated)
-        asyncio.create_task(self.test_pause())
-
-        # xoa_out = self.msg_pipe.get_facade(self.suite_name)
-        # while p.is_alive():
-        #     xoa_out.send_statistics({'t': time.time()})
-            # time.sleep(1)
-        # self.__on_execution_terminated(asyncio.create_task(asyncio.sleep(1)))
-        # manager.shutdown()
+        msg = asyncio.create_task(self.read_child_message())
+        msg.add_done_callback(self.__on_execution_terminated)
+        p = Process(target=self.subprocess, daemon=True)
+        p.start()
 
     def __send_pause_event(self) -> None:
         self.state_conditions.pause()
