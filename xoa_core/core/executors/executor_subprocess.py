@@ -30,10 +30,10 @@ class RelayXOAOut:
         self.transmit(Progress(current=current, total=total), msg_type=EMsgType.PROGRESS)
 
     def send_warning(self, warning: Exception) -> None:
-        logger.debug(warning)
+        self.transmit(warning, msg_type=EMsgType.WARNING)
 
     def send_error(self, error: Exception) -> None:
-        logger.debug(error)
+        self.transmit(error, msg_type=EMsgType.ERROR)
 
 
 class SubProcessTestSuite:

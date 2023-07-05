@@ -11,8 +11,8 @@ from xoa_core.core.generic_types import (
     TObserver,
     TMesagesPipe,
 )
-from xoa_core.types import PluginAbstract
-from xoa_core.core.executors.dataset import PIPE_CLOSE, POLL_MESSAGE_INTERNAL, EventFromParent, ExecuteEvent
+from xoa_core.types import PluginAbstract, EMsgType
+from xoa_core.core.executors.dataset import PIPE_CLOSE, POLL_MESSAGE_INTERNAL, EventFromParent, ExecuteEvent, MessageFromSubProcess
 
 if typing.TYPE_CHECKING:
     from pydantic import BaseModel
@@ -87,13 +87,26 @@ class SuiteExecutor:
 
     async def read_child_message(self):
         xoa_out = self.msg_pipe.get_facade(self.suite_name)
-        while True:
-            if self.xoa_out_pipe_read.poll():
-                msg = self.xoa_out_pipe_read.recv()
-                if msg == PIPE_CLOSE:
-                    break
-                xoa_out.send_statistics(msg)
+        child_message: typing.Union["MessageFromSubProcess", str]
+        for child_message in iter(lambda: self.xoa_out_pipe_read.recv(), 'STOP'):
+            if child_message == PIPE_CLOSE:
+                return
+
+            assert isinstance(child_message, MessageFromSubProcess)
+            if child_message.msg_type == EMsgType.STATISTICS:
+                xoa_out.send_statistics(child_message)
+            elif child_message.msg_type == EMsgType.PROGRESS:
+                xoa_out.send_progress(child_message.msg.current)
+            elif child_message.msg_type == EMsgType.WARNING:
+                xoa_out.send_warning(child_message.msg)
+            elif child_message.msg_type == EMsgType.ERROR:
+                xoa_out.send_error(child_message.msg)
+
             await asyncio.sleep(POLL_MESSAGE_INTERNAL)
+        # while True:
+        #     if self.xoa_out_pipe_read.poll():
+        #         msg = self.xoa_out_pipe_read.recv()
+        #     await asyncio.sleep(POLL_MESSAGE_INTERNAL)
 
     def run(self, observer: TObserver) -> None:
         self.__observer = observer
