@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, Dict, Union
 
 from loguru import logger
 
-
 if TYPE_CHECKING:
     from xoa_core.types import PluginAbstract, EMsgType, Progress
     from pydantic import BaseModel
@@ -39,6 +38,7 @@ class RelayXOAOut:
 
 class SubProcessTestSuite:
     __test_suite: "PluginAbstract"
+    __task: "asyncio.Task"
 
     def __init__(self, suite_name: str, xoa_out_pipe, event_state_pipe) -> None:
         self.suite_name = suite_name
@@ -66,15 +66,17 @@ class SubProcessTestSuite:
                     self.state_conditions.toggle_pause(msg.is_event_set)
                 elif msg.event_type.is_stop:
                     self.state_conditions.stop()
+                elif msg.event_type.is_cancel:
+                    self.__task.cancel()
             await asyncio.sleep(POLL_MESSAGE_INTERNAL)
 
     def start(self) -> None:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         sync_state = loop.create_task(self.__sync_event_state())
-        ts = loop.create_task(self.__test_suite.start())
-        ts.add_done_callback(self.__test_suite_ends)
-        loop.run_until_complete(ts)
+        self.__task = loop.create_task(self.__test_suite.start())
+        self.__task.add_done_callback(self.__test_suite_ends)
+        loop.run_until_complete(self.__task)
 
     def on_pause(self) -> None:
         ...

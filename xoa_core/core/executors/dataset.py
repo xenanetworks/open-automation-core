@@ -13,6 +13,7 @@ POLL_MESSAGE_INTERNAL = 0.01
 class ExecuteEvent(Enum):
     PAUSE = 'PAUSE'
     STOP = 'STOP'
+    CANCEL = 'CANCEL'
 
     @property
     def is_pause(self) -> bool:
@@ -21,6 +22,10 @@ class ExecuteEvent(Enum):
     @property
     def is_stop(self) -> bool:
         return self == ExecuteEvent.STOP
+
+    @property
+    def is_cancel(self) -> bool:
+        return self == ExecuteEvent.CANCEL
 
 
 class EventFromParent(BaseModel):

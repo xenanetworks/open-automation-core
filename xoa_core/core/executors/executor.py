@@ -124,6 +124,7 @@ class SuiteExecutor:
         """User interface stop the test suite."""
         self.state.set_stop()
         self.__test_suite.on_stop()
-        self.__task.cancel()
-        with contextlib.suppress(asyncio.CancelledError, exceptions.StopPlugin):
-            await self.__task
+        self.__send_event_to_child(ExecuteEvent.STOP, True)
+        self.__send_event_to_child(ExecuteEvent.CANCEL, True)
+        # with contextlib.suppress(asyncio.CancelledError, exceptions.StopPlugin):
+        #     await self.__task
