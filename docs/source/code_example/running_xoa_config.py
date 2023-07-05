@@ -8,8 +8,7 @@ import json
 from pathlib import Path
 
 PROJECT_PATH = Path(__file__).parent
-XOA_2544_CONFIG = PROJECT_PATH / "xoa_2544_config.json"
-XOA_2889_CONFIG = PROJECT_PATH / "xoa_2889_config.json"
+XOA_CONFIG = PROJECT_PATH / "xoa_2544_config.json"
 PLUGINS_PATH = PROJECT_PATH / "test_suites"
 
 
@@ -39,7 +38,7 @@ async def main() -> None:
     asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
 
     # Load your XOA 2544 config and run.
-    with open(XOA_2544_CONFIG, "r") as f:
+    with open(XOA_CONFIG, "r") as f:
 
         # Get rfc2544 test suite information from the core's registration
         info = ctrl.get_test_suite_info("RFC-2544")

@@ -26,6 +26,7 @@ async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: 
         print(msg)
 
 
+
 async def main() -> None:
     # Define your tester login credentials
     my_tester_credential = types.Credentials(
@@ -47,7 +48,7 @@ async def main() -> None:
     asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
 
     # Convert Valkyrie 2544 config into XOA 2544 config and run.
-    with open(OLD_2544_CONFIG, "r") as f:
+    with open(OLD_CONFIG, "r") as f:
         # get rfc2544 test suite information from the core's registration
         info = ctrl.get_test_suite_info("RFC-2544")
         if not info:
@@ -55,13 +56,14 @@ async def main() -> None:
             return None
 
         # convert the old config file into new config file
-        new_data = converter(TestSuiteType.RFC2544, f.read(), info["schema"])
+        new_data = converter(TestSuiteType.RFC2544, f.read())
 
         # you can use the config file below to start the test
         new_config = json.loads(new_data)
 
         # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
         execution_id = ctrl.start_test_suite("RFC-2544", new_config)
+
 
         # The example here only shows a print of test result data.
         asyncio.create_task(
