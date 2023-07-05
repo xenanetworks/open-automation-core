@@ -1,6 +1,5 @@
 xoa_driver==1.0.12
 typing-extensions>=3.7.4.3
-pydantic>=1.10.2
+pydantic==1.10.2
 semver==2.13.0
-loguru==0.6.0
 oyaml==1.0
