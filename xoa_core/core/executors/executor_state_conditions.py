@@ -46,3 +46,6 @@ class StateConditions:
 
     def stop(self) -> None:
         self.stop_event.set()
+
+    def toggle_pause(self, is_set: bool) -> None:
+        self.pause() if is_set else self.resume()
