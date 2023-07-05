@@ -17,7 +17,7 @@ def main() -> None:
         url="https://github.com/xenanetworks/open-automation-core",
         packages=setuptools.find_packages(),
         license='Apache 2.0',
-        install_requires=["xoa_driver>=1.0.12", "pydantic==1.10.2", "semver", "oyaml",],
+        install_requires=["xoa_driver>=2.0", "pydantic==1.10.2", "semver", "oyaml",],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
