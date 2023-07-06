@@ -37,6 +37,20 @@ class PRPCPipe(typing.Protocol):
     def recv(self) -> typing.Any: ...
 
 
+def _get_transmit_func_by_msg_type(msg_type: EMsgType, xoa_out: "PPipeFacade") -> typing.Callable[[typing.Any], typing.Any]:
+    func = None
+    if msg_type == EMsgType.STATISTICS:
+        func = xoa_out.send_statistics
+    elif msg_type == EMsgType.PROGRESS:
+        func = xoa_out.send_progress
+    elif msg_type == EMsgType.WARNING:
+        func = xoa_out.send_warning
+    elif msg_type == EMsgType.ERROR:
+        func = xoa_out.send_error
+    assert func
+    return func
+
+
 class SuiteExecutor:
     __slots__ = ("suite_name", "state", "__id", "__observer", "__msg_pipe", "__test_suite", "__rpc_pipe_write", "__xoa_out_pipe_read")
     __rpc_pipe_write: PRPCPipe
@@ -94,14 +108,13 @@ class SuiteExecutor:
                 return
 
             assert isinstance(child_message, MessageFromSubProcess)
-            if child_message.msg_type == EMsgType.STATISTICS:
-                xoa_out.send_statistics(child_message.msg)
-            elif child_message.msg_type == EMsgType.PROGRESS:
-                xoa_out.send_progress(child_message.msg.current)
-            elif child_message.msg_type == EMsgType.WARNING:
-                xoa_out.send_warning(child_message.msg)
+            transmit = _get_transmit_func_by_msg_type(child_message.msg_type, xoa_out)
+            if child_message.msg_type == EMsgType.PROGRESS:
+                transmit(**child_message.msg.dict())# type: ignore
             elif child_message.msg_type == EMsgType.ERROR:
-                xoa_out.send_error(child_message.msg)
+                raise child_message.msg
+            else:
+                transmit(child_message.msg)
 
             await asyncio.sleep(POLL_MESSAGE_INTERNAL)
 

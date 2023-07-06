@@ -15,6 +15,7 @@ from .core.resources.types import (
 from .core.messenger.misc import (
     EMsgType,
     Message,
+    Progress,
 )
 from .core.const import (
     PIPE_EXECUTOR,
@@ -38,4 +39,5 @@ __all__ = (
     "EExecutionState",
     "PortIdentity",
     "TestParameters",
+    "Progress",
 )

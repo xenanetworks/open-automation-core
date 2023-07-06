@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 from xoa_core.types import Progress, EMsgType
 from .dataset import PIPE_CLOSE, POLL_MESSAGE_INTERNAL, MessageFromSubProcess
 from .executor_state_conditions import StateConditions
+from loguru import logger
 
 
 class RelayXOAOut:
@@ -24,8 +25,8 @@ class RelayXOAOut:
         """Method used for push statistics data into the messages pipe for future distribution"""
         self.transmit(data, msg_type=EMsgType.STATISTICS)
 
-    def send_progress(self, current: int, total: int = 100) -> None:
-        self.transmit(Progress(current=current, total=total), msg_type=EMsgType.PROGRESS)
+    def send_progress(self, current: int, total: int = 100, loop: int = 0) -> None:
+        self.transmit(Progress(current=current, total=total, loop=loop), msg_type=EMsgType.PROGRESS)
 
     def send_warning(self, warning: Exception) -> None:
         self.transmit(warning, msg_type=EMsgType.WARNING)
@@ -57,6 +58,8 @@ class SubProcessTestSuite:
         self.xoa_out_pipe.send(MessageFromSubProcess(msg=msg, msg_type=msg_type))
 
     def __test_suite_ends(self, task: "asyncio.Task"):
+        if err := task.exception():
+            self.__send_xoa_out_message(err, msg_type=EMsgType.ERROR)
         self.xoa_out_pipe.send(PIPE_CLOSE)
 
     async def __rpc_listener(self) -> None:
