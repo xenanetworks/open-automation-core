@@ -8,7 +8,7 @@ from xoa_core.types import EMsgType
 
 
 PIPE_CLOSE = 'PIPE_CLOSE'
-POLL_MESSAGE_INTERNAL = 0.01
+POLL_MESSAGE_INTERNAL = 0.1
 
 
 class ExecuteEvent(Enum):

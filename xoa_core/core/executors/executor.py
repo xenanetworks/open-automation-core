@@ -103,18 +103,20 @@ class SuiteExecutor:
     async def __relay_child_xoa_message(self) -> None:
         xoa_out = self.__msg_pipe.get_facade(self.suite_name)
         child_message: typing.Union["MessageFromSubProcess", str]# async wait_for
-        for child_message in iter(lambda: self.__xoa_out_pipe_read.recv(), 'STOP'):
-            if child_message == PIPE_CLOSE:
-                return
+        while True:
+            if self.__xoa_out_pipe_read.poll():
+                child_message = self.__xoa_out_pipe_read.recv()
+                if child_message == PIPE_CLOSE:
+                    return
 
-            assert isinstance(child_message, MessageFromSubProcess)
-            transmit = _get_transmit_func_by_msg_type(child_message.msg_type, xoa_out)
-            if child_message.msg_type == EMsgType.PROGRESS:
-                transmit(**child_message.msg.dict())# type: ignore
-            elif child_message.msg_type == EMsgType.ERROR:
-                raise child_message.msg
-            else:
-                transmit(child_message.msg)
+                assert isinstance(child_message, MessageFromSubProcess)
+                transmit = _get_transmit_func_by_msg_type(child_message.msg_type, xoa_out)
+                if child_message.msg_type == EMsgType.PROGRESS:
+                    transmit(**child_message.msg.dict())# type: ignore
+                elif child_message.msg_type == EMsgType.ERROR:
+                    raise child_message.msg
+                else:
+                    transmit(child_message.msg)
 
             await asyncio.sleep(POLL_MESSAGE_INTERNAL)
 
