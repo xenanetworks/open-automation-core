@@ -37,16 +37,13 @@ class PRPCPipe(typing.Protocol):
     def recv(self) -> typing.Any: ...
 
 
-def _get_transmit_func_by_msg_type(msg_type: EMsgType, xoa_out: "PPipeFacade") -> typing.Callable[[typing.Any], typing.Any]:
-    func = None
-    if msg_type == EMsgType.STATISTICS:
-        func = xoa_out.send_statistics
-    elif msg_type == EMsgType.PROGRESS:
-        func = xoa_out.send_progress
-    elif msg_type == EMsgType.WARNING:
-        func = xoa_out.send_warning
-    elif msg_type == EMsgType.ERROR:
-        func = xoa_out.send_error
+def _get_transmit_func(msg_type: EMsgType, xoa_out: "PPipeFacade") -> typing.Callable[[typing.Any], typing.Any]:
+    func = {
+        EMsgType.STATISTICS: xoa_out.send_statistics,
+        EMsgType.PROGRESS: xoa_out.send_progress,
+        EMsgType.WARNING: xoa_out.send_warning,
+        EMsgType.ERROR: xoa_out.send_error,
+    }.get(msg_type)
     assert func
     return func
 
@@ -110,7 +107,7 @@ class SuiteExecutor:
                     return
 
                 assert isinstance(child_message, MessageFromSubProcess)
-                transmit = _get_transmit_func_by_msg_type(child_message.msg_type, xoa_out)
+                transmit = _get_transmit_func(child_message.msg_type, xoa_out)
                 if child_message.msg_type == EMsgType.PROGRESS:
                     transmit(**child_message.msg.dict())# type: ignore
                 elif child_message.msg_type == EMsgType.ERROR:
