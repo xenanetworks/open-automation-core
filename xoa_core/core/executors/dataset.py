@@ -8,13 +8,14 @@ from xoa_core.types import EMsgType
 
 
 PIPE_CLOSE = 'PIPE_CLOSE'
-POLL_MESSAGE_INTERNAL = 0.1
+POLL_MESSAGE_INTERVAL = 0.1
 
 
 class ExecuteEvent(Enum):
     PAUSE = 'PAUSE'
     STOP = 'STOP'
     CANCEL = 'CANCEL'
+    CONTINUE = 'CONTINUE'
     ON_PAUSE = 'ON_PAUSE'
     ON_CONTINUE = 'ON_CONTINUE'
     ON_STOP = 'ON_STOP'
@@ -43,10 +44,6 @@ class ExecuteEvent(Enum):
     def is_on_stop(self) -> bool:
         return self == ExecuteEvent.ON_STOP
 
-
-class EventFromParent(BaseModel):
-    event_type: ExecuteEvent
-    is_event_set: bool
 
 
 class MessageFromSubProcess(BaseModel):

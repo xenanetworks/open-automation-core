@@ -1,5 +1,6 @@
 import asyncio
 from enum import Enum
+from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Dict, Union
 
 if TYPE_CHECKING:
@@ -9,10 +10,9 @@ if TYPE_CHECKING:
     from xoa_core.core.plugin_abstract import (
         TransmitFunc,
     )
-    from .dataset import EventFromParent
 
 from xoa_core.types import Progress, EMsgType
-from .dataset import PIPE_CLOSE, POLL_MESSAGE_INTERNAL, MessageFromSubProcess
+from .dataset import PIPE_CLOSE, POLL_MESSAGE_INTERVAL, MessageFromSubProcess, ExecuteEvent
 from .executor_state_conditions import StateConditions
 from loguru import logger
 
@@ -44,9 +44,21 @@ class SubProcessTestSuite:
 
     def __init__(self, suite_name: str, xoa_out_pipe, rpc_pipe) -> None:
         self.suite_name = suite_name
+        self.state_conditions = StateConditions()
         self.xoa_out_pipe = xoa_out_pipe
         self.rpc_pipe = rpc_pipe
-        self.state_conditions = StateConditions()
+        self.rpc_function_table = {
+            ExecuteEvent.PAUSE: self.state_conditions.pause,
+            ExecuteEvent.STOP: self.state_conditions.stop,
+            ExecuteEvent.CONTINUE: self.state_conditions.resume,
+            ExecuteEvent.CANCEL: self.__cancel_test_suite,
+            ExecuteEvent.ON_PAUSE: self.__on_pause,
+            ExecuteEvent.ON_CONTINUE: self.__on_continue,
+            ExecuteEvent.ON_STOP: self.__on_stop,
+        }
+
+    def __cancel_test_suite(self) -> None:
+        self.__task.cancel()
 
     def assign_plugin(self, plugin: "PPlugin") -> None:
         self.__test_suite = plugin.create_test_suite(
@@ -65,21 +77,10 @@ class SubProcessTestSuite:
     async def __rpc_listener(self) -> None:
         while True:
             if self.rpc_pipe.poll():
-                msg: EventFromParent = self.rpc_pipe.recv()
-                if msg.event_type.is_pause:
-                    self.state_conditions.toggle_pause(msg.is_event_set)
-                elif msg.event_type.is_stop:
-                    self.state_conditions.stop()
-                elif msg.event_type.is_cancel:
-                    self.__task.cancel()
-                elif msg.event_type.is_on_pause:
-                    self.__loop.create_task(self.__test_suite.on_pause())
-                elif msg.event_type.is_on_continue:
-                    self.__loop.create_task(self.__test_suite.on_continue())
-                elif msg.event_type.is_on_stop:
-                    self.__loop.create_task(self.__test_suite.on_stop())
-
-            await asyncio.sleep(POLL_MESSAGE_INTERNAL)
+                event_name: str = self.rpc_pipe.recv()
+                func = self.rpc_function_table[ExecuteEvent[event_name]]
+                func()
+            await asyncio.sleep(POLL_MESSAGE_INTERVAL)
 
     def start(self) -> None:
         self.__loop = asyncio.new_event_loop()
@@ -88,3 +89,11 @@ class SubProcessTestSuite:
         self.__task = self.__loop.create_task(self.__test_suite.start())
         self.__task.add_done_callback(self.__test_suite_ends)
         self.__loop.run_until_complete(self.__task)
+
+    def invoke_test_suite_callback(self, event: str) -> None:
+        event_func = getattr(self.__test_suite, event)
+        self.__loop.create_task(event_func)
+
+    __on_pause = partialmethod(invoke_test_suite_callback, 'on_pause')
+    __on_continue = partialmethod(invoke_test_suite_callback, 'on_continue')
+    __on_stop = partialmethod(invoke_test_suite_callback, 'on_stop')

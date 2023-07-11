@@ -17,7 +17,7 @@ from xoa_core.core.generic_types import (
     TMesagesPipe,
 )
 from xoa_core.types import PluginAbstract, EMsgType
-from .dataset import PIPE_CLOSE, POLL_MESSAGE_INTERNAL, EventFromParent, ExecuteEvent, MessageFromSubProcess
+from .dataset import PIPE_CLOSE, ExecuteEvent, MessageFromSubProcess
 from .executor_info import ExecutorInfo
 from . import exceptions
 from ._events import Event
@@ -123,21 +123,18 @@ class SuiteExecutor:
         p = Process(target=self.__test_suite.start, daemon=True)
         p.start()
 
-    def __send_rpc(self, event_type: ExecuteEvent, is_event_set: bool = True) -> None:
-        self.__rpc_pipe_write.send(EventFromParent(
-            event_type=event_type,
-            is_event_set=is_event_set,
-        ))
+    def __send_rpc(self, event_type: ExecuteEvent) -> None:
+        self.__rpc_pipe_write.send(event_type.value)
 
     def toggle_pause(self) -> None:
         """User interface toggle pause."""
         if self.state.is_running:
             self.state.set_pause()
-            self.__send_rpc(ExecuteEvent.PAUSE, is_event_set=True)
+            self.__send_rpc(ExecuteEvent.PAUSE)
             self.__send_rpc(ExecuteEvent.ON_PAUSE)
         elif self.state.is_paused:
             self.state.set_run()
-            self.__send_rpc(ExecuteEvent.PAUSE, is_event_set=False)
+            self.__send_rpc(ExecuteEvent.CONTINUE)
             self.__send_rpc(ExecuteEvent.ON_CONTINUE)
 
     async def stop(self) -> None:
