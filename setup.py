@@ -1,4 +1,22 @@
+
 import setuptools
+from typing import Generator
+
+
+def validate_extension(extension_name: str) -> bool:
+    import sys
+    for arg in sys.argv:
+        if arg.startswith(f"xoa_core[{extension_name}]"):
+            return True
+    return False
+
+
+validate_extension("dev")
+
+
+def define_console_scripts() -> Generator[str, None, None]:
+    # if validate_extension("dev"):
+    yield "xoa-core = xoa_core.extension.dev.__main__:cli"
 
 
 def main() -> None:
@@ -18,6 +36,15 @@ def main() -> None:
         packages=setuptools.find_packages(),
         license='Apache 2.0',
         install_requires=["xoa_driver>=2.0", "pydantic==1.10.2", "semver", "oyaml",],
+        extras_require={
+            "dev": [
+                "asyncclick>=8.1.3.4",
+                "anyio>=3.6.2",
+            ],
+        },
+        entry_points={
+            "console_scripts": list(define_console_scripts()),
+        },
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",
