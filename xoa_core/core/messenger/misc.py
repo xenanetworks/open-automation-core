@@ -36,6 +36,7 @@ class StatePayload(BaseModel):
 class Progress(BaseModel):
     current: int
     total: int
+    loop: int
 
 
 class TransmitFunc(Protocol):
@@ -71,10 +72,11 @@ class PipeFacade:
     def send_statistics(self, data: dict[str, Any] | "BaseModel" | IsDataClass) -> None:
         self.__transmit(data, msg_type=EMsgType.STATISTICS, suite_name=self.__suite_name)
 
-    def send_progress(self, current: int, total: int = 100) -> None:
+    def send_progress(self, current: int, total: int = 100, loop: int = 0) -> None:
         progress = Progress(
             current=current,
-            total=total
+            total=total,
+            loop=loop,
         )
         self.__transmit(progress, msg_type=EMsgType.PROGRESS, suite_name=self.__suite_name)
 
