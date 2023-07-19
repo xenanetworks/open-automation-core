@@ -141,14 +141,15 @@ class MainController:
         :rtype: str
         """
         plugin = self.suites_library.get_plugin(test_suite_name, debug_connection)
-        plugin.parse_config(config)
+        plugin.parse_config(config)  # Can Raise ValidationError
         plugin.assign_testers(self.__resources.get_testers_by_id)
         executor = SuiteExecutor(test_suite_name)
         executor.assign_pipe(
             self.__publisher.get_pipe(executor.id)
         )
         executor.assign_plugin(plugin)
-        return self.__execution_manager.run(executor)
+        self.__execution_manager.run(executor)  # Can raise MultiModeError
+        return executor.id
 
     def executions_info(self) -> list[ExecutorInfo]:
         """
