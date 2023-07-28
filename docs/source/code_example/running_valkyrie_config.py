@@ -48,7 +48,7 @@ async def main() -> None:
     asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
 
     # Convert Valkyrie 2544 config into XOA 2544 config and run.
-    with open(OLD_CONFIG, "r") as f:
+    with open(OLD_2544_CONFIG, "r") as f:
         # get rfc2544 test suite information from the core's registration
         info = ctrl.get_test_suite_info("RFC-2544")
         if not info:
