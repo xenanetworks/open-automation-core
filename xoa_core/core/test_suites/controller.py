@@ -1,6 +1,7 @@
 from __future__ import annotations
 import os
 from pathlib import Path
+from collections.abc import KeysView
 from typing import (
     Generator,
     Optional,
@@ -54,7 +55,7 @@ class PluginController:
         plugin_data = self.get_plugin_data(name)
         return datasets.Plugin(plugin_data, debug)
 
-    def __read_plugins(self) -> Generator["datasets.PluginData", None, None]:
+    def __read_plugins(self, path: Optional[str | Path] = None) -> Generator["datasets.PluginData", None, None]:
         """Read plugins from provided paths."""
         for path in self.__paths:
             yield from loader.load_plugin(path)
@@ -66,3 +67,10 @@ class PluginController:
             (plugin.meta.name, plugin)
             for plugin in self.__read_plugins()
         )
+
+    def reload_lib(self, path: str | Path) -> KeysView[str]:
+        new_lib = dict((plugin.meta.name, plugin) for plugin in loader.reload_plugin(plugin_path=path))
+        self.__test_suites.update(
+            new_lib
+        )
+        return new_lib.keys()

@@ -19,6 +19,7 @@ from .types import TesterID
 
 if typing.TYPE_CHECKING:
     from .types import EMsgType
+    from collections.abc import KeysView
 
 
 class MainController:
@@ -177,7 +178,7 @@ class MainController:
         :return: none
         :rtype: None
         """
-        await self.__execution_manager.stop(execution_id)
+        self.__execution_manager.stop(execution_id)
 
     async def running_test_toggle_pause(self, execution_id: str) -> None:
         """Pause or continue execution of a test suite.
@@ -187,4 +188,14 @@ class MainController:
         :return: none
         :rtype: None
         """
-        return await self.__execution_manager.toggle_pause(execution_id)
+        return self.__execution_manager.toggle_pause(execution_id)
+
+    def reload_lib(self, path: str | Path) -> "KeysView[str]":
+        """Register lookup path of custom test suites library.
+
+        :param path: lookup path of custom test suites library
+        :type path: str | Path
+        :return: plugin name
+        :rtype: str
+        """
+        return self.suites_library.reload_lib(path)

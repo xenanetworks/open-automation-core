@@ -1,4 +1,5 @@
 from __future__ import annotations
+import asyncio
 import typing
 from xoa_core.core.utils import observer
 from xoa_core.core import exceptions
@@ -47,10 +48,11 @@ class ExecutorsManager:
         if ex := self.__executors.get(exec_id):
             return ex.state.current_state
 
-    async def stop(self, exec_id: str) -> None:
+    def stop(self, exec_id: str) -> None:
         if ex := self.__executors.get(exec_id):
-            await ex.stop()
+            loop = asyncio.get_event_loop()
+            loop.run_in_executor(None, ex.stop)
 
-    async def toggle_pause(self, exec_id: str) -> None:
+    def toggle_pause(self, exec_id: str) -> None:
         if ex := self.__executors.get(exec_id):
-            await ex.toggle_pause()
+            ex.toggle_pause()
