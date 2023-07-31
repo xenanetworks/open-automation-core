@@ -4,6 +4,7 @@ from typing import (
     Optional,
     Protocol,
     Any,
+    ClassVar,
 )
 from enum import Enum
 from pydantic import BaseModel
@@ -43,6 +44,10 @@ class TransmitFunc(Protocol):
         ...
 
 
+class IsDataClass(Protocol):
+    __dataclass_fields__: ClassVar[Dict]
+
+
 class PipeStateFacade:
     __slots__ = ("__transmit",)
 
@@ -64,7 +69,7 @@ class PipeFacade:
         self.__transmit = transmit
         self.__suite_name = suite_name
 
-    def send_statistics(self, data: dict[str, Any] | "BaseModel") -> None:
+    def send_statistics(self, data: dict[str, Any] | "BaseModel" | IsDataClass) -> None:
         self.__transmit(data, msg_type=EMsgType.STATISTICS, suite_name=self.__suite_name)
 
     def send_progress(self, current: int, total: int = 100, loop: int = 0) -> None:

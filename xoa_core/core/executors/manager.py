@@ -30,13 +30,12 @@ class ExecutorsManager:
     async def __on_execution_error(self, suite_name: str, error: Exception) -> None:
         self.__msg_pipe.transmit(f"Test Suite Error: {suite_name}, {error}")
 
-    def run(self, executor: "SuiteExecutor") -> str:
+    def run(self, executor: "SuiteExecutor") -> None:
         if self.__mono and len(self.__executors) > 1:
             raise exceptions.MultiModeError()
         self.__executors[executor.id] = executor
         executor.run(self.__observer)
         self.__msg_pipe.transmit(f"Test Suite Started: {executor.id}")
-        return executor.id
 
     def get_executors_info(self) -> list[ExecutorInfo]:
         return [
