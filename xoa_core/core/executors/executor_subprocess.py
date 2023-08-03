@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from enum import Enum
 from functools import partialmethod
 from typing import TYPE_CHECKING, Any, Dict, Union
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
 from xoa_core.types import Progress, EMsgType
 from .dataset import PIPE_CLOSE, POLL_MESSAGE_INTERVAL, MessageFromSubProcess, ExecuteEvent
 from .executor_state_conditions import StateConditions
+from .exceptions import StopPlugin
 from loguru import logger
 
 
@@ -70,8 +72,8 @@ class SubProcessTestSuite:
         self.xoa_out_pipe.send(MessageFromSubProcess(msg=msg, msg_type=msg_type))
 
     def __test_suite_ends(self, task: "asyncio.Task"):
-        if err := task.exception():
-            self.__send_xoa_out_message(err, msg_type=EMsgType.ERROR)
+        # if err := task.exception():
+        #     self.__send_xoa_out_message(err, msg_type=EMsgType.ERROR)
         self.xoa_out_pipe.send(PIPE_CLOSE)
 
     async def __rpc_listener(self) -> None:
@@ -88,11 +90,13 @@ class SubProcessTestSuite:
         self.__loop.create_task(self.__rpc_listener())
         self.__task = self.__loop.create_task(self.__test_suite.start())
         self.__task.add_done_callback(self.__test_suite_ends)
-        self.__loop.run_until_complete(self.__task)
+        with contextlib.suppress(asyncio.CancelledError, StopPlugin):
+            self.__loop.run_until_complete(self.__task)
 
     def invoke_test_suite_callback(self, event: str) -> None:
+        return
         event_func = getattr(self.__test_suite, event)
-        self.__loop.create_task(event_func)
+        self.__loop.create_task(event_func())
 
     __on_pause = partialmethod(invoke_test_suite_callback, 'on_pause')
     __on_continue = partialmethod(invoke_test_suite_callback, 'on_continue')

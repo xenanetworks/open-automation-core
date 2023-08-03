@@ -37,6 +37,11 @@ class ExecutorsManager:
         executor.run(self.__observer)
         self.__msg_pipe.transmit(f"Test Suite Started: {executor.id}")
 
+    def rerun(self, executor_id: str) -> None:
+        self.stop(executor_id)
+        executor = self.__executors[executor_id]
+        self.run(executor)
+
     def get_executors_info(self) -> list[ExecutorInfo]:
         return [
             ex.get_info()
@@ -49,8 +54,7 @@ class ExecutorsManager:
 
     def stop(self, exec_id: str) -> None:
         if ex := self.__executors.get(exec_id):
-            loop = asyncio.get_event_loop()
-            loop.run_in_executor(None, ex.stop)
+            ex.stop()
 
     def toggle_pause(self, exec_id: str) -> None:
         if ex := self.__executors.get(exec_id):

@@ -110,7 +110,10 @@ class SuiteExecutor:
             if child_message.msg_type == EMsgType.PROGRESS:
                 transmit(**child_message.msg.dict())# type: ignore
             elif child_message.msg_type == EMsgType.ERROR:
-                raise child_message.msg
+                if isinstance(child_message.msg, asyncio.CancelledError):
+                    transmit(child_message.msg)
+                else:
+                    raise child_message.msg
             else:
                 transmit(child_message.msg)
 
@@ -137,7 +140,7 @@ class SuiteExecutor:
             self.__send_rpc(ExecuteEvent.CONTINUE)
             self.__send_rpc(ExecuteEvent.ON_CONTINUE)
 
-    async def stop(self) -> None:
+    def stop(self) -> None:
         """User interface stop the test suite."""
         self.state.set_stop()
         self.__send_rpc(ExecuteEvent.STOP)

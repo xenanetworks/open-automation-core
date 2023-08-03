@@ -200,3 +200,6 @@ class MainController:
         :rtype: str
         """
         return self.suites_library.reload_lib(path)
+
+    def rerun_test(self, execution_id) -> None:
+        self.__execution_manager.rerun(execution_id)
