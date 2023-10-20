@@ -20,205 +20,159 @@ Xena OpenAutomation (XOA) Core is the framework that provides a standardized way
 The user documentation is hosted:
 [Xena OpenAutomation Core Documentation](https://docs.xenanetworks.com/projects/xoa-core)
 
-## Installation
 
-### Install Using `pip`
-Make sure Python `pip` is installed on you system. If you are using virtualenv, then pip is already installed into environments created by virtualenv, and using sudo is not needed. If you do not have pip installed, download this file: https://bootstrap.pypa.io/get-pip.py and run `python get-pip.py`.
+## Step-by-Step
 
-To install the latest, use pip to install from pypi:
-``` shell
-~/> pip install xoa-core
-```
+This section provides a step-by-step guide on how to use XOA Core to run XOA test suites. 
 
-To upgrade to the latest, use pip to upgrade from pypi:
-``` shell
-~/> pip install xoa-core --upgrade
-```
+### Create Project Folder
 
-> Note:
-> If you install XOA Core using `pip`, XOA Python API (PyPi package name [`xoa_driver`](https://pypi.org/project/xoa-core/)) will be automatically installed.
+To run XOA test suites, you need a folder to place the test suite plugins, the test configuration files, and yous Python script to control the tests.
 
-### Install From Source Code
-Make sure these packages are installed ``wheel``, ``setuptools`` on your system.
-
-Install ``setuptools`` using pip:
-``` shell
-~/> pip install wheel setuptools
-```
-
-To install source of python packages:
-``` shell
-/xoa_core> python setup.py install
-```
-
-To build ``.whl`` file for distribution:
-``` shell
-/xoa_core> python setup.py bdist_wheel
-```
-
-> Note:
-> If you install XOA Core from the source code, you need to install XOA Python API (PyPi package name [`xoa_driver`](https://pypi.org/project/xoa-core/)) separately. This is because XOA Python API is treated as a 3rd-party dependency of XOA Core. You can go to [XOA Python API](https://github.com/xenanetworks/open-automation-python-api) repository to learn how to install.
-
-## Understanding XOA Core
-
-The XOA Core is an asynchronous Python framework that can be represented by four subparts:
-1. Resources Management System
-2. Test Suite Plugin System
-3. Test Execution System
-4. Data IO System
-
-### Resources Management System
-
-The key functionality is represented in managing and monitoring the state of known test resources.
-
-Under the hood, it uses the instance of [`xoa_driver`](https://pypi.org/project/xoa-core/) library as a representation of the resource. 
-
-> Note:
-> [XOA Python API](https://github.com/xenanetworks/open-automation-python-api) (PyPi package name [`xoa_driver`](https://pypi.org/project/xoa-core/)) is treated as a 3rd-party dependency, thus its source code is not included in XOA Core.
-
-Available operations for users:
-* Add testers
-* Remove testers
-* Connect to testers
-* Disconnect from testers
-* Get the list of available testers
-
-### Test Suite Plugin System
-
-XOA Core dynamically loads test suites that are organized in a common structure, and exposes information of those test suites to the user.
-
-Available operations for users:
-* Register plugins library
-* Get the list of available test suite names
-* Get test suite info by its name
-
-Users can register one or multiple test suite lookup folders in a test script by calling the method ``register_lib(<lookup_path: str>)``.
-
-A test suite plugin must have the structure below:
+Let's create a folder called ```/my_xoa_project```
 
 ```
-./my_test_suite
+/my_xoa_project
     |
-    |- meta.yml
-    |- __init__.py
-    |- <any other modules defined by user>
 ```
 
-``meta.yml`` has a fixed structure as shown below, and is used as the entry point for the plugin loading system. If the test suite folder doesn't contain this file, it will not be loaded by XOA Core.
+### Install XOA Core and XOA Converter
 
-``` yml
-name: "RFC-2544[Frame Loss]" # Plugin name
-version: "1.0" # Plugin curren version
-core_version: ">=1.0.0" # compatible to xoa-core version
-author: # Optional list of authors
-  - "ACO"
-entry_object: "FrameLossTest" # class name of script entry point
-data_model: "FrameLossModel"  # class name of test suite data model
+
+After creating the folder, install ```xoa-core``` and ```xoa-converter```using pip:
+
+```
+pip install xoa-core -U
+pip install xoa-converter -U
 ```
 
-The ``entry_object`` must be inherited from an abstract class: ``types.PluginAbstract``
+### Place Test Suite Plugins
 
-The ``data_model`` must be a class of [Pydantic](https://pydantic-docs.helpmanual.io/) model inherited from ``pydantic.BaseModel``
+Place the corresponding [XOA RFC test suite plugins](https://github.com/xenanetworks/open-automation-rfc-test-suites) and the test configuration files in ```/my_xoa_project```.
 
-You can find the source code of a test suite plugin example ``./examples/billet_plugin_example/FrameLoss/``. 
+Your project folder will look like this afterwards.
+
+```
+/my_xoa_project
+    |
+    |- /test_suites
+        |- /plugin2544
+        |- /plugin2889
+        |- /plugin3918
+```
 
 
-> Note:
-> Be aware of imports during implementation of your plugin. It is recommended to use relative import in your plugin because the library paths in different user environments can be different, which makes it impossible for the plugin code to run.
+### Run Tests from Valkyrie RFC Test Suite Configurations
 
-> Performance Notice:
-> Test suites are treated as an ``asyncio.Task``. It means all heavy computational operations must be implemented with subprocess workers or threadings.
+> Read more about [XOA Config Convert](https://docs.xenanetworks.com/projects/xoa-config-converter)
 
-### Test Execution System
+Copy your Valkyrie test configurations into ```/my_xoa_project``` for easy access. Then create a ```main.py``` file inside the folder ```/my_xoa_project```.
 
-XOA Core provides the following controlling methods of test suite execution:
+```
+/my_xoa_project
+    |
+    |- main.py
+    |- old_2544_config.v2544
+    |- old_2889_config.v2889
+    |- old_3918_config.v3918
+    |- /test_suites
+        |- /plugin2544
+        |- /plugin2889
+        |- /plugin3918
+```
 
-* Start test suite
-* Pause/continue test suite: User should use ``await self.state_conditions.wait_if_paused()``, where the test suite should be paused/continued.
-* Stop test suite: User should use ``await self.state_conditions.stop_if_stopped()``, where the test suite should be stopped.
+This ```main.py``` controls the test workflow, i.e. load the configuration files, start tests, receive test results, and stop tests. The example below demonstrates a basic flow for you to run XOA tests.
 
-#### Start Test Suite
-
-Method: ``execution_id = c.start_test_suite(<plugin_name>, <suite_config_dict>)``
-
-``<plugin_name>`` - must match the name from plugins ``meta.yml``.
-
-``<suite_config_dict>`` - must be a dictionary matching to the following structure:
 
 ``` python
-{
-    "username": "JonDoe",
-    "port_identities": {
-        "p0": {
-            "tester_id": "2906f8d041e9fd07191d6a37ef5785b2",
-            "tester_index": 0,
-            "module_index": 1,
-            "port_index": 4
-        },
-        ...
-    },
-    "config": TestSuiteModel<as dict>
-}
+from __future__ import annotations
+import sys
+from xoa_core import (
+    controller,
+    types,
+)
+import asyncio
+import json
+from pathlib import Path
+# XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`
+try:
+    from xoa_converter.entry import converter
+    from xoa_converter.types import TestSuiteType
+except ImportError:
+    print("XOA Converter is an independent module and it needs to be installed via `pip install xoa-converter`")
+    sys.exit()
+
+PROJECT_PATH = Path(__file__).parent
+OLD_2544_CONFIG = PROJECT_PATH / "old_2544_config.v2544"
+OLD_2889_CONFIG = PROJECT_PATH / "old_2889_config.v2889"
+PLUGINS_PATH = PROJECT_PATH / "test_suites"
+
+
+async def subscribe(ctrl: "controller.MainController", channel_name: str, fltr: set["types.EMsgType"] | None = None) -> None:
+    async for msg in ctrl.listen_changes(channel_name, _filter=fltr):
+        print(msg)
+
+
+
+async def main() -> None:
+    # Define your tester login credentials
+    my_tester_credential = types.Credentials(
+        product=types.EProductType.VALKYRIE,
+        host="10.20.30.40"
+    )
+
+    # Create a default instance of the controller class.
+    ctrl = await controller.MainController()
+
+    # Register the plugins folder.
+    ctrl.register_lib(str(PLUGINS_PATH))
+
+    # Add tester credentials into teh controller. If already added, it will be ignored.
+    # If you want to add a list of testers, you need to iterate through the list.
+    await ctrl.add_tester(my_tester_credential)
+
+    # Subscribe to test resource notifications.
+    asyncio.create_task(subscribe(ctrl, channel_name=types.PIPE_RESOURCES))
+
+    # Convert Valkyrie 2544 config into XOA 2544 config and run.
+    with open(OLD_2544_CONFIG, "r") as f:
+        # get rfc2544 test suite information from the core's registration
+        info = ctrl.get_test_suite_info("RFC-2544")
+        if not info:
+            print("Test suite is not recognized.")
+            return None
+
+        # convert the old config file into new config file
+        new_data = converter(TestSuiteType.RFC2544, f.read())
+
+        # you can use the config file below to start the test
+        new_config = json.loads(new_data)
+
+        # Test suite name: "RFC-2544" is received from call of c.get_available_test_suites()
+        execution_id = ctrl.start_test_suite("RFC-2544", new_config)
+
+
+        # The example here only shows a print of test result data.
+        asyncio.create_task(
+            subscribe(ctrl, channel_name=execution_id, fltr={types.EMsgType.STATISTICS})
+        )
+
+    # By the next line, we prevent the script from being immediately
+    # terminated as the test execution and subscription are non blockable, and they ran asynchronously,
+    await asyncio.Event().wait()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
 ```
 
-If ``test_suite`` is successfully started, the function will return an ``execution_id``, which can be used to control the test suite executions, or to subscribe to the outgoing messages from the test suite.
 
-> Note:
-> A test suite will not start if its test resources are not registered in [Resource Manager](https://xena-openautomation-python-api.readthedocs.io/en/latest/general_info.html#test-resource-management), or if one of its test resources is unavailable/disconnected.
+### Receive Test Result Data
 
-#### Pause/Continue Test Suite
+XOA Core sends test result data (in JSON format) to your code as shown in the example below. It is up to you to decide how to process it, either parse it and display in your console, or store them into a file.
 
-Method: ``await my_core_controller.running_test_toggle_pause(<execution_id>)``
-
-> Note:
-> To apply pause/continue action, a valid ``execution_id`` must be passed into the method.
-
-#### Stop Test Suite
-
-Method: ``await c.running_test_stop(<execution_id>)``.
-
-If the execution of ``execution_id`` exists, the test suite will be terminated.
-
-
-### Data IO System
-
-XOA Core allows users to subscribe to different messages generated by different subsystems (ResourcesManager, ExecutorManager) and test suites.
-
-Code example of message subscription:
-
-``` python
-async for msg in c.listen_changes(execution_id, _filter={types.EMsgType.STATISTICS}):
-        print(msg.dict())
-```
-
-In the snippet above, we subscribe only to the statistics messages from the test suite that is currently in execution.
-
-The ``_filter`` argument is an set of filter types.
-
-The first parameter of ``_filter`` argument is a mandatory identifier of the subsystem or the test suite execution.
-
-Subsystem types:
-
-``` python
-    types.PIPE_EXECUTOR
-
-    types.PIPE_RESOURCES
-``` 
-
-Available filters types:
-
-``` python
-class EMsgType(Enum):
-    STATE = "STATE"
-    DATA = "DATA"
-    STATISTICS = "STATISTICS"
-    PROGRESS = "PROGRESS"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-```
-
-> Note:
-> ``_filter`` argument is optional. If it is not provided, all message types will be returned from this test suite execution.
+> Read about [Test Result Types](https://docs.xenanetworks.com/projects/xoa-core/en/latest/understand_xoa_core/test_result_types.html)
 
 
 ***
