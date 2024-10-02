@@ -28,7 +28,6 @@ The target audience of this document is test specialists who develop and run aut
    introduction
    getting_started/index
    understand_xoa_core/index
-   api_ref/index
    glossary
 
 

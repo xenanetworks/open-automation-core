@@ -228,6 +228,3 @@ epub_publisher = 'https://xenanetworks.com'
 epub_copyright = copyright
 epub_show_urls = 'footnote'
 epub_basename = output_basename
-
-# Remove auto-generated API docs from sidebars. They take too long to build.
-remove_from_toctrees = ["api_doc/_autosummary/*"]
